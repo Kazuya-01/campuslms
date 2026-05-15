@@ -80,8 +80,7 @@
                     @endforeach
                 </div>
                 <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <button form="quiz-form" type="submit" class="w-full px-3 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white text-xs font-medium rounded-lg transition-all"
-                            onclick="return confirm('Yakin ingin mengumpulkan? Jawaban tidak bisa diubah lagi.')">
+                    <button form="quiz-form" type="submit" class="w-full px-3 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white text-xs font-medium rounded-lg transition-all">
                         Kumpulkan
                     </button>
                 </div>
@@ -90,11 +89,13 @@
 
         {{-- Questions --}}
         <div class="flex-1 min-w-0">
-            <form id="quiz-form" action="{{ route('mahasiswa.quizzes.submit', $quiz) }}" method="POST">
+            <form id="quiz-form" action="{{ route('mahasiswa.quizzes.submit', $quiz) }}" method="POST" @@submit.prevent="handleSubmit()">
                 @csrf
                 <div class="space-y-4">
                     @foreach($quiz->questions as $index => $question)
-                        <div id="q{{ $index + 1 }}" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 scroll-mt-24">
+                        <div id="q{{ $index + 1 }}" x-ref="q{{ $index }}" 
+                             :class="errors['question_{{ $question->id }}'] ? 'border-red-400 dark:border-red-500 ring-1 ring-red-400 dark:ring-red-500' : 'border-gray-200 dark:border-gray-700'"
+                             class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border p-5 scroll-mt-24 transition-all duration-300">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center space-x-2">
                                     <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-xs font-bold flex items-center justify-center">{{ $index + 1 }}</span>
@@ -109,7 +110,8 @@
                                 <div class="space-y-2">
                                     @foreach($question->options as $option)
                                         <label x-data="{ checked: false }" :class="checked ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 ring-1 ring-purple-500' : 'border-gray-200 dark:border-gray-700'" class="flex items-center p-3.5 rounded-xl border hover:border-purple-300 dark:hover:border-purple-600 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 cursor-pointer transition-all">
-                                            <input type="radio" name="question_{{ $question->id }}" value="{{ is_array($option) ? ($option['value'] ?? '') : $option }}" @@change="checked = $el.checked" class="hidden">
+                                            <input type="radio" name="question_{{ $question->id }}" value="{{ is_array($option) ? ($option['value'] ?? '') : $option }}" 
+                                                   @@change="checked = $el.checked; clearError('question_{{ $question->id }}')" class="hidden">
                                             <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 flex-shrink-0 transition-all" :class="checked ? 'border-purple-500 bg-purple-500' : 'border-gray-300 dark:border-gray-600'">
                                                 <div x-show="checked" class="w-2 h-2 rounded-full bg-white"></div>
                                             </div>
@@ -119,17 +121,24 @@
                                 </div>
                             @else
                                 <textarea name="question_{{ $question->id }}" rows="4" 
+                                    @@input="clearError('question_{{ $question->id }}')"
                                     class="w-full rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:border-purple-500 focus:ring-purple-500 resize-y"
                                     placeholder="Tulis jawaban Anda di sini..."></textarea>
                             @endif
+
+                            <template x-if="errors['question_{{ $question->id }}']">
+                                <div x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" class="flex items-center gap-1.5 mt-3 text-sm text-red-600 dark:text-red-400">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                    <span>Soal ini harus dijawab</span>
+                                </div>
+                            </template>
                         </div>
                     @endforeach
                 </div>
 
                 <div class="mt-6 flex justify-between items-center">
                     <span class="text-xs text-gray-400">{{ $quiz->questions->count() }} soal &bull; klik "Kumpulkan" jika sudah selesai</span>
-                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-medium rounded-xl shadow-lg transition-all"
-                            onclick="return confirm('Yakin ingin mengumpulkan? Pastikan semua jawaban sudah diisi.')">
+                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-medium rounded-xl shadow-lg transition-all">
                         Kumpulkan Quiz
                     </button>
                 </div>
@@ -147,12 +156,61 @@ document.addEventListener('alpine:init', () => {
         warningTimer: 10,
         warningInterval: null,
         formSubmitted: false,
+        errors: {},
 
         init() {
             this.preventCheating();
             this.trackVisibility();
             this.trackLeave();
             this.preventBackNavigation();
+        },
+
+        handleSubmit() {
+            if (!this.validate()) return;
+
+            if (!confirm('Yakin ingin mengumpulkan? Pastikan semua jawaban sudah diisi. Jawaban tidak bisa diubah lagi.')) return;
+
+            this.formSubmitted = true;
+            document.getElementById('quiz-form').submit();
+        },
+
+        validate() {
+            this.errors = {};
+            const questions = document.querySelectorAll('[name^="question_"]');
+            let firstError = null;
+
+            questions.forEach((input) => {
+                const name = input.getAttribute('name');
+                if (this.errors[name]) return;
+
+                if (input.type === 'radio') {
+                    const group = document.querySelectorAll(`input[name="${name}"]`);
+                    const checked = Array.from(group).some(r => r.checked);
+                    if (!checked) {
+                        this.errors[name] = true;
+                        if (!firstError) firstError = name;
+                    }
+                } else if (input.type === 'textarea' || input.tagName === 'TEXTAREA') {
+                    if (!input.value.trim()) {
+                        this.errors[name] = true;
+                        if (!firstError) firstError = name;
+                    }
+                }
+            });
+
+            if (firstError) {
+                const firstInput = document.querySelector(`[name="${firstError}"]`);
+                const questionBlock = firstInput?.closest('[id^="q"]');
+                if (questionBlock) {
+                    questionBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            return Object.keys(this.errors).length === 0;
+        },
+
+        clearError(name) {
+            delete this.errors[name];
         },
 
         preventCheating() {
