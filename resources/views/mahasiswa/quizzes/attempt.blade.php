@@ -74,9 +74,11 @@
                 <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Navigasi</p>
                 <div class="grid grid-cols-4 gap-1.5">
                     @foreach($quiz->questions as $index => $q)
-                        <a href="#q{{ $index + 1 }}" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:border-purple-300 transition-colors">
+                        <button type="button" @@click="goToQuestion({{ $index }})"
+                                :class="answered['question_{{ $q->id }}'] ? 'bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600 hover:border-emerald-600' : (errors['question_{{ $q->id }}'] ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:border-purple-300')"
+                                class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium border transition-all">
                             {{ $index + 1 }}
-                        </a>
+                        </button>
                     @endforeach
                 </div>
                 <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
@@ -111,7 +113,7 @@
                                     @foreach($question->options as $option)
                                         <label x-data="{ checked: false }" :class="checked ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 ring-1 ring-purple-500' : 'border-gray-200 dark:border-gray-700'" class="flex items-center p-3.5 rounded-xl border hover:border-purple-300 dark:hover:border-purple-600 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 cursor-pointer transition-all">
                                             <input type="radio" name="question_{{ $question->id }}" value="{{ is_array($option) ? ($option['value'] ?? '') : $option }}" 
-                                                   @@change="checked = $el.checked; clearError('question_{{ $question->id }}')" class="hidden">
+                                                   @@change="checked = $el.checked; markAnswered('question_{{ $question->id }}')" class="hidden">
                                             <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 flex-shrink-0 transition-all" :class="checked ? 'border-purple-500 bg-purple-500' : 'border-gray-300 dark:border-gray-600'">
                                                 <div x-show="checked" class="w-2 h-2 rounded-full bg-white"></div>
                                             </div>
@@ -121,7 +123,7 @@
                                 </div>
                             @else
                                 <textarea name="question_{{ $question->id }}" rows="4" 
-                                    @@input="clearError('question_{{ $question->id }}')"
+                                    @@input="markAnswered('question_{{ $question->id }}')"
                                     class="w-full rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:border-purple-500 focus:ring-purple-500 resize-y"
                                     placeholder="Tulis jawaban Anda di sini..."></textarea>
                             @endif
@@ -157,6 +159,7 @@ document.addEventListener('alpine:init', () => {
         warningInterval: null,
         formSubmitted: false,
         errors: {},
+        answered: {},
 
         init() {
             this.preventCheating();
@@ -211,6 +214,16 @@ document.addEventListener('alpine:init', () => {
 
         clearError(name) {
             delete this.errors[name];
+        },
+
+        markAnswered(name) {
+            this.answered[name] = true;
+            this.clearError(name);
+        },
+
+        goToQuestion(index) {
+            const el = document.getElementById('q' + (index + 1));
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         },
 
         preventCheating() {
