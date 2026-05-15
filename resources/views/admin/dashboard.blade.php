@@ -112,6 +112,42 @@
         </div>
     </div>
 
+    {{-- Charts --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h3 class="font-semibold text-gray-800 mb-4">Distribusi Nilai Akhir</h3>
+            <canvas id="gradeChart" height="200"></canvas>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h3 class="font-semibold text-gray-800 mb-4">Aktivitas Bulanan</h3>
+            <canvas id="activityChart" height="200"></canvas>
+        </div>
+    </div>
+
+    @push('scripts')
+    <script>
+        new Chart(document.getElementById('gradeChart'), {
+            type: 'doughnut',
+            data: {
+                labels: @json($gradeDistribution['labels']),
+                datasets: [{ data: @json($gradeDistribution['data']), backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#f97316', '#ef4444'] }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+        new Chart(document.getElementById('activityChart'), {
+            type: 'bar',
+            data: {
+                labels: @json(collect($monthlyActivity)->pluck('month')),
+                datasets: [
+                    { label: 'Tugas', data: @json(collect($monthlyActivity)->pluck('assignments')), backgroundColor: '#6366f1' },
+                    { label: 'Quiz', data: @json(collect($monthlyActivity)->pluck('quizzes')), backgroundColor: '#a855f7' },
+                ]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+    </script>
+    @endpush
+
     {{-- Recent Classes & Announcements --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">

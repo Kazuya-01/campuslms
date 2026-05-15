@@ -26,6 +26,13 @@ Route::middleware(['auth', 'verified', 'role:mahasiswa'])->prefix('mahasiswa')->
     Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');
     Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
 
+    Route::get('calendar', [App\Http\Controllers\Mahasiswa\CalendarController::class, 'index'])->name('calendar.index');
+
+    Route::get('chat', [App\Http\Controllers\Mahasiswa\ChatController::class, 'index'])->name('chat.index');
+    Route::get('chat/{class}', [App\Http\Controllers\Mahasiswa\ChatController::class, 'class'])->name('chat.class');
+    Route::get('chat/{class}/messages', [App\Http\Controllers\Mahasiswa\ChatController::class, 'messages'])->name('chat.messages');
+    Route::post('chat/{class}/send', [App\Http\Controllers\Mahasiswa\ChatController::class, 'send'])->name('chat.send');
+
     Route::get('quizzes', [MahasiswaQuizController::class, 'index'])->name('quizzes.index');
     Route::get('quizzes/{quiz}', [MahasiswaQuizController::class, 'show'])->name('quizzes.show');
     Route::match(['get', 'post'], 'quizzes/{quiz}/start', [MahasiswaQuizController::class, 'start'])->name('quizzes.start');

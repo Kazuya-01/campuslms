@@ -29,7 +29,6 @@ class DashboardController extends Controller
         $recentClasses = LMSClass::with('dosen')->latest()->take(5)->get();
         $recentAnnouncements = Announcement::with('user')->latest()->take(5)->get();
 
-        // Enrollment stats for chart
         $enrollmentStats = LMSClass::withCount('students')
             ->latest()
             ->take(10)
@@ -39,12 +38,35 @@ class DashboardController extends Controller
                 'students' => $class->students_count,
             ]);
 
+        $gradeDistribution = [
+            'labels' => ['A (≥85)', 'B (70-84)', 'C (55-69)', 'D (40-54)', 'E (<40)'],
+            'data' => [
+                \App\Models\Grade::where('type', 'final')->where('score', '>=', 85)->count(),
+                \App\Models\Grade::where('type', 'final')->whereBetween('score', [70, 84.99])->count(),
+                \App\Models\Grade::where('type', 'final')->whereBetween('score', [55, 69.99])->count(),
+                \App\Models\Grade::where('type', 'final')->whereBetween('score', [40, 54.99])->count(),
+                \App\Models\Grade::where('type', 'final')->where('score', '<', 40)->count(),
+            ],
+        ];
+
+        $monthlyActivity = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $monthlyActivity[] = [
+                'month' => $month->format('M'),
+                'assignments' => \App\Models\Assignment::whereMonth('created_at', $month->month)->whereYear('created_at', $month->year)->count(),
+                'quizzes' => \App\Models\Quiz::whereMonth('created_at', $month->month)->whereYear('created_at', $month->year)->count(),
+            ];
+        }
+
         return view('admin.dashboard', compact(
             'stats',
             'recentUsers',
             'recentClasses',
             'recentAnnouncements',
-            'enrollmentStats'
+            'enrollmentStats',
+            'gradeDistribution',
+            'monthlyActivity'
         ));
     }
 }

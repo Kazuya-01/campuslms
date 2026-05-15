@@ -41,6 +41,13 @@ Route::middleware(['auth', 'verified', 'role:dosen'])->prefix('dosen')->name('do
     Route::post('certificates', [DosenCertificateController::class, 'store'])->name('certificates.store');
     Route::get('certificates/{certificate}/download', [DosenCertificateController::class, 'download'])->name('certificates.download');
 
+    Route::get('calendar', [App\Http\Controllers\Dosen\CalendarController::class, 'index'])->name('calendar.index');
+
+    Route::get('chat', [App\Http\Controllers\Dosen\ChatController::class, 'index'])->name('chat.index');
+    Route::get('chat/{class}', [App\Http\Controllers\Dosen\ChatController::class, 'class'])->name('chat.class');
+    Route::get('chat/{class}/messages', [App\Http\Controllers\Dosen\ChatController::class, 'messages'])->name('chat.messages');
+    Route::post('chat/{class}/send', [App\Http\Controllers\Dosen\ChatController::class, 'send'])->name('chat.send');
+
     Route::get('forum', [DosenForumController::class, 'index'])->name('forum.index');
     Route::get('forum/class/{class}', [DosenForumController::class, 'class'])->name('forum.class');
     Route::get('forum/class/{class}/create', [DosenForumController::class, 'create'])->name('forum.create');
