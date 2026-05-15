@@ -1,27 +1,63 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Profile</h2>
-    </x-slot>
+@php
+    $role = auth()->user()->getRoleNames()->first();
+    $layout = match ($role) {
+        'super_admin', 'admin' => 'layouts.admin',
+        'dosen' => 'layouts.dosen',
+        default => 'layouts.mahasiswa',
+    };
+@endphp
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
-            </div>
+@extends($layout)
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
-            </div>
+@section('title', 'Profile - CampusLMS')
+@section('page-title', 'Profile')
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
+@section('content')
+<div class="max-w-4xl mx-auto space-y-6">
+    {{-- Profile Header --}}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="h-24 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500"></div>
+        <div class="px-6 pb-6">
+            <div class="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-12">
+                <img src="{{ auth()->user()->avatar_url }}" alt="" class="w-24 h-24 rounded-xl border-4 border-white shadow-lg object-cover">
+                <div class="text-center sm:text-left flex-1">
+                    <h2 class="text-xl font-bold text-gray-800">{{ auth()->user()->name }}</h2>
+                    <p class="text-sm text-gray-500">{{ auth()->user()->email }}</p>
+                    <div class="flex items-center justify-center sm:justify-start gap-2 mt-1">
+                        <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                            @switch($role)
+                                @case('super_admin') bg-red-100 text-red-700 @break
+                                @case('admin') bg-indigo-100 text-indigo-700 @break
+                                @case('dosen') bg-emerald-100 text-emerald-700 @break
+                                @default bg-blue-100 text-blue-700
+                            @endswitch">
+                            {{ auth()->user()->role_label }}
+                        </span>
+                        @if(auth()->user()->username)
+                            <span class="text-xs text-gray-400">@ {{ auth()->user()->username }}</span>
+                        @endif
+                        @if(auth()->user()->nim)
+                            <span class="text-xs text-gray-400">NIM: {{ auth()->user()->nim }}</span>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+
+    {{-- Profile Information --}}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        @include('profile.partials.update-profile-information-form')
+    </div>
+
+    {{-- Password --}}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        @include('profile.partials.update-password-form')
+    </div>
+
+    {{-- Delete Account --}}
+    <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6">
+        @include('profile.partials.delete-user-form')
+    </div>
+</div>
+@endSection
