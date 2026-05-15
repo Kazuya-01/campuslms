@@ -54,10 +54,26 @@ class ChatController extends Controller
             'message' => $validated['message'],
         ]);
 
-        if ($request->wantsJson()) {
-            return response()->json(['message' => $msg->load('user')]);
-        }
+        return response()->json(['message' => $msg->load('user')]);
+    }
 
-        return redirect()->route('dosen.chat.class', $class);
+    public function update(Request $request, LMSClass $class, ChatMessage $message)
+    {
+        if ($message->user_id !== auth()->id()) abort(403);
+        if ($message->class_id !== $class->id) abort(404);
+
+        $validated = $request->validate(['message' => 'required|string|max:1000']);
+        $message->update(['message' => $validated['message']]);
+
+        return response()->json(['message' => $message->load('user')]);
+    }
+
+    public function destroy(LMSClass $class, ChatMessage $message)
+    {
+        if ($message->user_id !== auth()->id()) abort(403);
+        if ($message->class_id !== $class->id) abort(404);
+
+        $message->delete();
+        return response()->json(['success' => true]);
     }
 }

@@ -47,6 +47,8 @@ Route::middleware(['auth', 'verified', 'role:dosen'])->prefix('dosen')->name('do
     Route::get('chat/{class}', [App\Http\Controllers\Dosen\ChatController::class, 'class'])->name('chat.class');
     Route::get('chat/{class}/messages', [App\Http\Controllers\Dosen\ChatController::class, 'messages'])->name('chat.messages');
     Route::post('chat/{class}/send', [App\Http\Controllers\Dosen\ChatController::class, 'send'])->name('chat.send');
+    Route::post('chat/{class}/message/{message}/edit', [App\Http\Controllers\Dosen\ChatController::class, 'update'])->name('chat.update');
+    Route::post('chat/{class}/message/{message}/delete', [App\Http\Controllers\Dosen\ChatController::class, 'destroy'])->name('chat.delete');
 
     Route::get('forum', [DosenForumController::class, 'index'])->name('forum.index');
     Route::get('forum/class/{class}', [DosenForumController::class, 'class'])->name('forum.class');

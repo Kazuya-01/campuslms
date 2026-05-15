@@ -32,6 +32,8 @@ Route::middleware(['auth', 'verified', 'role:mahasiswa'])->prefix('mahasiswa')->
     Route::get('chat/{class}', [App\Http\Controllers\Mahasiswa\ChatController::class, 'class'])->name('chat.class');
     Route::get('chat/{class}/messages', [App\Http\Controllers\Mahasiswa\ChatController::class, 'messages'])->name('chat.messages');
     Route::post('chat/{class}/send', [App\Http\Controllers\Mahasiswa\ChatController::class, 'send'])->name('chat.send');
+    Route::post('chat/{class}/message/{message}/edit', [App\Http\Controllers\Mahasiswa\ChatController::class, 'update'])->name('chat.update');
+    Route::post('chat/{class}/message/{message}/delete', [App\Http\Controllers\Mahasiswa\ChatController::class, 'destroy'])->name('chat.delete');
 
     Route::get('quizzes', [MahasiswaQuizController::class, 'index'])->name('quizzes.index');
     Route::get('quizzes/{quiz}', [MahasiswaQuizController::class, 'show'])->name('quizzes.show');

@@ -87,7 +87,12 @@
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatMessages = document.getElementById('chat-messages');
+    const userId = {{ auth()->id() }};
+    const classId = {{ $class->id }};
     let lastId = {{ $messages->last()?->id ?? 0 }};
+
+    function csrf() { return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'); }
+    function jsonHeaders() { return { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() }; }
 
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -95,12 +100,12 @@
         if (!msg) return;
         chatInput.value = '';
         chatInput.disabled = true;
-        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         try {
             const res = await fetch('{{ route("mahasiswa.chat.send", $class) }}', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+                method: 'POST', headers: jsonHeaders(),
                 body: JSON.stringify({ message: msg }),
             });
+            if (!res.ok) throw new Error();
             const data = await res.json();
             appendMessage(data.message, true);
             lastId = data.message.id;
@@ -111,18 +116,56 @@
 
     function appendMessage(msg, isSelf) {
         const d = document.createElement('div');
+        d.id = 'msg-' + msg.id;
         d.className = 'flex ' + (isSelf ? 'justify-end' : 'justify-start');
-        d.innerHTML = `<div class="max-w-[85%] lg:max-w-[70%] ${isSelf ? 'bg-blue-500 text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md'} px-4 py-2.5">${!isSelf ? `<p class="text-xs font-medium ${msg.user?.role === 'dosen' ? 'text-emerald-600' : 'text-blue-600'} mb-0.5">${msg.user?.name || ''}</p>` : ''}<p class="text-sm leading-relaxed break-words">${escHtml(msg.message)}</p><p class="text-xs mt-1 ${isSelf ? 'text-blue-200' : 'text-gray-400'}">${new Date().toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'})}</p></div>`;
+        const time = new Date(msg.created_at || Date.now()).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'});
+        const text = escHtml(msg.message);
+        d.innerHTML = `<div class="max-w-[85%] lg:max-w-[70%] ${isSelf ? 'bg-blue-500 text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md'} px-4 py-2.5">${!isSelf ? `<p class="text-xs font-medium ${msg.user?.role === 'dosen' ? 'text-emerald-600' : 'text-blue-600'} mb-0.5">${msg.user?.name || ''}</p>` : ''}<p class="text-sm leading-relaxed break-words msg-text">${text}</p><div class="flex items-center justify-between mt-1"><span class="text-xs ${isSelf ? 'text-blue-200' : 'text-gray-400'}">${time}</span>${isSelf ? `<div class="flex gap-2">` +
+            `<button onclick="editMessage(${msg.id})" class="text-xs ${isSelf ? 'text-blue-200 hover:text-white' : 'text-gray-400 hover:text-gray-600'}">Edit</button>` +
+            `<button onclick="deleteMessage(${msg.id})" class="text-xs ${isSelf ? 'text-blue-200 hover:text-white' : 'text-gray-400 hover:text-gray-600'}">Hapus</button>` +
+        `</div>` : ''}</div></div>`;
         chatMessages.appendChild(d);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
+
+    window.editMessage = async (id) => {
+        const el = document.getElementById('msg-' + id);
+        const textEl = el.querySelector('.msg-text');
+        const current = textEl.textContent;
+        const newText = prompt('Edit pesan:', current);
+        if (!newText || newText.trim() === current.trim()) return;
+        try {
+            const res = await fetch('/mahasiswa/chat/' + classId + '/message/' + id + '/edit', {
+                method: 'POST', headers: jsonHeaders(),
+                body: JSON.stringify({ message: newText.trim() }),
+            });
+            if (!res.ok) throw new Error();
+            textEl.textContent = newText.trim();
+        } catch (e) { alert('Gagal mengedit pesan'); }
+    };
+
+    window.deleteMessage = async (id) => {
+        if (!confirm('Hapus pesan ini?')) return;
+        try {
+            const res = await fetch('/mahasiswa/chat/' + classId + '/message/' + id + '/delete', {
+                method: 'POST', headers: jsonHeaders(),
+            });
+            if (!res.ok) throw new Error();
+            const el = document.getElementById('msg-' + id);
+            el.style.transition = 'opacity 0.3s';
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 300);
+        } catch (e) { alert('Gagal menghapus pesan'); }
+    };
+
     function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
     setInterval(async () => {
         try {
-            const res = await fetch('{{ route("mahasiswa.chat.messages", $class) }}?after=' + lastId);
+            const res = await fetch('{{ route("mahasiswa.chat.messages", $class) }}?after=' + lastId, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) return;
             const data = await res.json();
-            data.messages.forEach(msg => { appendMessage(msg, msg.user_id === {{ auth()->id() }}); lastId = msg.id; });
+            data.messages.forEach(msg => { if (!document.getElementById('msg-' + msg.id)) { appendMessage(msg, msg.user_id === userId); } lastId = msg.id; });
         } catch (e) {}
     }, 3000);
     chatMessages.scrollTop = chatMessages.scrollHeight;
