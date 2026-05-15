@@ -41,7 +41,7 @@ class QuizController extends Controller
         return view('mahasiswa.quizzes.show', compact('quiz', 'existingAttempt'));
     }
 
-    public function start(Quiz $quiz)
+    public function start(Request $request, Quiz $quiz)
     {
         $user = auth()->user();
         if (!$user->enrolledClasses()->where('class_id', $quiz->class_id)->exists()) abort(403);
@@ -64,6 +64,10 @@ class QuizController extends Controller
         if ($inProgress) {
             $quiz->load('questions');
             return view('mahasiswa.quizzes.attempt', ['quiz' => $quiz, 'attempt' => $inProgress]);
+        }
+
+        if ($request->isMethod('get')) {
+            return redirect()->route('mahasiswa.quizzes.show', $quiz);
         }
 
         $attempt = QuizAttempt::create([

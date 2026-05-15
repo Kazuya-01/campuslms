@@ -27,7 +27,7 @@ Route::middleware(['auth', 'verified', 'role:mahasiswa'])->prefix('mahasiswa')->
 
     Route::get('quizzes', [MahasiswaQuizController::class, 'index'])->name('quizzes.index');
     Route::get('quizzes/{quiz}', [MahasiswaQuizController::class, 'show'])->name('quizzes.show');
-    Route::post('quizzes/{quiz}/start', [MahasiswaQuizController::class, 'start'])->name('quizzes.start');
+    Route::match(['get', 'post'], 'quizzes/{quiz}/start', [MahasiswaQuizController::class, 'start'])->name('quizzes.start');
     Route::post('quizzes/{quiz}/submit', [MahasiswaQuizController::class, 'submit'])->name('quizzes.submit');
     Route::get('quizzes/{quiz}/result', [MahasiswaQuizController::class, 'result'])->name('quizzes.result');
 });
