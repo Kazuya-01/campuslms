@@ -77,16 +77,14 @@
                 <p class="text-gray-500 dark:text-gray-400 text-sm py-4 text-center">No submissions yet.</p>
             @endforelse
         </div>
-                    </div>
-                </div>
-            @endif
+    </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-                <form action="{{ route('dosen.assignments.destroy', $assignment) }}" method="POST" onsubmit="return confirm('Hapus tugas ini? Semua pengumpulan juga akan ikut terhapus.')">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg">Hapus Tugas</button>
-                </form>
-            </div>
+    <div class="space-y-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <form action="{{ route('dosen.assignments.destroy', $assignment) }}" method="POST" onsubmit="return confirm('Hapus tugas ini? Semua pengumpulan juga akan ikut terhapus.')">
+                @csrf @method('DELETE')
+                <button type="submit" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg">Hapus Tugas</button>
+            </form>
         </div>
     </div>
 </div>
