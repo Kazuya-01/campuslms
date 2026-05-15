@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class QuizQuestion extends Model
+{
+    protected $fillable = [
+        'quiz_id',
+        'type',
+        'question',
+        'options',
+        'correct_answer',
+        'points',
+        'order',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'options' => 'array',
+            'points' => 'integer',
+            'order' => 'integer',
+        ];
+    }
+
+    public function quiz()
+    {
+        return $this->belongsTo(Quiz::class);
+    }
+
+    public function attemptAnswers()
+    {
+        return $this->hasMany(QuizAttemptAnswer::class, 'quiz_question_id');
+    }
+
+    public function getTypeLabelAttribute(): string
+    {
+        return $this->type === 'multiple_choice' ? 'Pilihan Ganda' : 'Essay';
+    }
+}
