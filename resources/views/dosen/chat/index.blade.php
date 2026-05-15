@@ -127,7 +127,8 @@
     const chatMessages = document.getElementById('chat-messages');
     const userId = {{ auth()->id() }};
     const classId = {{ $class->id }};
-    const msgBase = '{{ url("dosen/chat/" . $class->id . "/message") }}';
+    const editRoute = '{{ route("dosen.chat.update", ["class" => $class, "message" => "MSGID"]) }}';
+    const deleteRoute = '{{ route("dosen.chat.delete", ["class" => $class, "message" => "MSGID"]) }}';
     let lastId = {{ $messages->last()?->id ?? 0 }};
 
     function csrf() { return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'); }
@@ -188,7 +189,7 @@
         const newText = input.value.trim();
         if (!newText) return;
         try {
-            const res = await fetch(msgBase + '/' + id + '/edit', {
+            const res = await fetch(editRoute.replace('MSGID', id), {
                 method: 'POST', headers: jsonHeaders(),
                 body: JSON.stringify({ message: newText }),
             });
@@ -221,7 +222,7 @@
         const id = document.getElementById('deleteId').value;
         closeDeleteModal();
         try {
-            const res = await fetch(msgBase + '/' + id + '/delete', {
+            const res = await fetch(deleteRoute.replace('MSGID', id), {
                 method: 'POST', headers: jsonHeaders(),
             });
             if (!res.ok) throw new Error();

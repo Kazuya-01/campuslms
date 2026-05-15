@@ -132,7 +132,8 @@
     const chatMessages = document.getElementById('chat-messages');
     const userId = {{ auth()->id() }};
     const classId = {{ $class->id }};
-    const msgBase = '{{ url("mahasiswa/chat/" . $class->id . "/message") }}';
+    const editRoute = '{{ route("mahasiswa.chat.update", ["class" => $class, "message" => "MSGID"]) }}';
+    const deleteRoute = '{{ route("mahasiswa.chat.delete", ["class" => $class, "message" => "MSGID"]) }}';
     let lastId = {{ $messages->last()?->id ?? 0 }};
 
     function csrf() { return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'); }
@@ -193,14 +194,14 @@
         const newText = input.value.trim();
         if (!newText) return;
         try {
-            const res = await fetch(msgBase + '/' + id + '/edit', {
+            const res = await fetch(editRoute.replace('MSGID', id), {
                 method: 'POST', headers: jsonHeaders(),
                 body: JSON.stringify({ message: newText }),
             });
-            if (!res.ok) throw new Error();
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             toast('Pesan diedit');
             location.reload();
-        } catch (e) { toast('Gagal!', 'error'); }
+        } catch (e) { toast(e.message || 'Gagal!', 'error'); }
     };
 
     window.cancelEdit = (id) => {
@@ -226,7 +227,7 @@
         const id = document.getElementById('deleteId').value;
         closeDeleteModal();
         try {
-            const res = await fetch(msgBase + '/' + id + '/delete', {
+            const res = await fetch(deleteRoute.replace('MSGID', id), {
                 method: 'POST', headers: jsonHeaders(),
             });
             if (!res.ok) throw new Error();
