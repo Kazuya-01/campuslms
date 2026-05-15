@@ -132,6 +132,7 @@
     const chatMessages = document.getElementById('chat-messages');
     const userId = {{ auth()->id() }};
     const classId = {{ $class->id }};
+    const msgBase = '{{ url("mahasiswa/chat/" . $class->id . "/message") }}';
     let lastId = {{ $messages->last()?->id ?? 0 }};
 
     function csrf() { return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'); }
@@ -141,13 +142,10 @@
         const c = document.getElementById('toast-container');
         const t = document.createElement('div');
         const colors = { success: 'bg-emerald-500', error: 'bg-red-500', info: 'bg-blue-500' };
-        const icons = { success: `<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>`,
-            error: `<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>`,
-            info: `<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>` };
-        t.className = `${colors[type] || colors.info} text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5 animate-slide-in`;
-        t.innerHTML = `<svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">${icons[type] || icons.info}</svg><span>${msg}</span>`;
+        t.className = `${colors[type] || colors.info} text-white text-xs font-medium px-3 py-2 rounded-lg shadow-lg flex items-center gap-1.5 animate-slide-in`;
+        t.innerHTML = `<span>${msg}</span>`;
         c.appendChild(t);
-        setTimeout(() => { t.style.transition = 'all 0.3s'; t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 300); }, 3000);
+        setTimeout(() => { t.style.transition = 'all 0.3s'; t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 300); }, 2000);
     }
 
     chatForm.addEventListener('submit', async (e) => {
@@ -195,16 +193,14 @@
         const newText = input.value.trim();
         if (!newText) return;
         try {
-            const res = await fetch('/mahasiswa/chat/' + classId + '/message/' + id + '/edit', {
+            const res = await fetch(msgBase + '/' + id + '/edit', {
                 method: 'POST', headers: jsonHeaders(),
                 body: JSON.stringify({ message: newText }),
             });
             if (!res.ok) throw new Error();
-            el.querySelector('.msg-text').textContent = newText;
-            el.querySelector('.msg-view').classList.remove('hidden');
-            el.querySelector('.msg-edit').classList.add('hidden');
-            toast('Pesan telah diedit');
-        } catch (e) { toast('Gagal mengedit pesan', 'error'); }
+            toast('Pesan diedit');
+            location.reload();
+        } catch (e) { toast('Gagal!', 'error'); }
     };
 
     window.cancelEdit = (id) => {
@@ -228,19 +224,15 @@
 
     window.confirmDelete = async () => {
         const id = document.getElementById('deleteId').value;
+        closeDeleteModal();
         try {
-            const res = await fetch('/mahasiswa/chat/' + classId + '/message/' + id + '/delete', {
+            const res = await fetch(msgBase + '/' + id + '/delete', {
                 method: 'POST', headers: jsonHeaders(),
             });
             if (!res.ok) throw new Error();
-            const el = document.getElementById('msg-' + id);
-            el.style.transition = 'all 0.3s';
-            el.style.opacity = '0';
-            el.style.transform = 'scale(0.95)';
-            setTimeout(() => el.remove(), 300);
-            toast('Pesan telah dihapus');
-        } catch (e) { toast('Gagal menghapus pesan', 'error'); }
-        closeDeleteModal();
+            toast('Pesan dihapus');
+            location.reload();
+        } catch (e) { toast('Gagal hapus!', 'error'); }
     };
 
     function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
