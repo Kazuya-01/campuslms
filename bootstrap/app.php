@@ -29,7 +29,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'mahasiswa/chat/*/send',
+            'mahasiswa/chat/*/message/*/edit',
+            'mahasiswa/chat/*/message/*/delete',
             'dosen/chat/*/send',
+            'dosen/chat/*/message/*/edit',
+            'dosen/chat/*/message/*/delete',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

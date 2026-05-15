@@ -37,13 +37,30 @@
 
                 <div id="chat-messages" class="flex-1 p-4 space-y-3 overflow-y-auto min-h-[40vh] max-h-[55vh] lg:max-h-none">
                     @forelse($messages as $msg)
-                        <div class="flex {{ $msg->user_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
+                        <div id="msg-{{ $msg->id }}" class="flex {{ $msg->user_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
                             <div class="max-w-[85%] lg:max-w-[70%] {{ $msg->user_id === auth()->id() ? 'bg-emerald-500 text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md' }} px-4 py-2.5">
                                 @if($msg->user_id !== auth()->id())
                                     <p class="text-xs font-medium text-blue-600 mb-0.5">{{ $msg->user->name }}</p>
                                 @endif
-                                <p class="text-sm leading-relaxed break-words">{{ $msg->message }}</p>
-                                <p class="text-xs mt-1 {{ $msg->user_id === auth()->id() ? 'text-emerald-200' : 'text-gray-400' }}">{{ $msg->created_at->format('H:i') }}</p>
+                                <div class="msg-view">
+                                    <p class="text-sm leading-relaxed break-words msg-text">{{ $msg->message }}</p>
+                                    <div class="flex items-center justify-between mt-1">
+                                        <span class="text-xs {{ $msg->user_id === auth()->id() ? 'text-emerald-200' : 'text-gray-400' }}">{{ $msg->created_at->format('H:i') }}</span>
+                                        @if($msg->user_id === auth()->id())
+                                            <div class="flex gap-2">
+                                                <button onclick="editMessage({{ $msg->id }})" class="text-xs text-emerald-200 hover:text-white">Edit</button>
+                                                <button onclick="showDeleteModal({{ $msg->id }})" class="text-xs text-emerald-200 hover:text-white">Hapus</button>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="msg-edit hidden">
+                                    <textarea class="edit-input w-full text-sm bg-white/20 rounded-lg p-2 text-white resize-none" rows="2">{{ $msg->message }}</textarea>
+                                    <div class="flex gap-2 mt-2">
+                                        <button onclick="saveEdit({{ $msg->id }})" class="text-xs px-2 py-1 bg-white text-emerald-600 rounded-lg font-medium">Simpan</button>
+                                        <button onclick="cancelEdit({{ $msg->id }})" class="text-xs px-2 py-1 bg-white/20 text-white rounded-lg">Batal</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     @empty
@@ -78,7 +95,31 @@
     </div>
 </div>
 
+@push('styles')
+<style>
+    .animate-slide-in { animation: slideIn 0.3s ease-out; }
+    @@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
+@endpush
+
 @if(isset($class))
+<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" onclick="closeDeleteModal(event)">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6 text-center" onclick="event.stopPropagation()">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Hapus Pesan?</h3>
+        <p class="text-sm text-gray-500 mb-6">Pesan akan dihapus secara permanen. Tidak bisa dibatalkan.</p>
+        <input type="hidden" id="deleteId" value="">
+        <div class="flex gap-3">
+            <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all">Batal</button>
+            <button onclick="confirmDelete()" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-medium rounded-xl transition-all shadow-sm">Ya, Hapus</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
 @push('scripts')
 <script>
     const chatForm = document.getElementById('chat-form');
@@ -90,6 +131,19 @@
 
     function csrf() { return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'); }
     function jsonHeaders() { return { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() }; }
+
+    function toast(msg, type = 'success') {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        const colors = { success: 'bg-emerald-500', error: 'bg-red-500', info: 'bg-blue-500' };
+        const icons = { success: '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>',
+            error: '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>',
+            info: '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>' };
+        t.className = `${colors[type] || colors.info} text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5 animate-slide-in`;
+        t.innerHTML = `<svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">${icons[type] || icons.info}</svg><span>${msg}</span>`;
+        c.appendChild(t);
+        setTimeout(() => { t.style.transition = 'all 0.3s'; t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 300); }, 3000);
+    }
 
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -106,53 +160,82 @@
             const data = await res.json();
             appendMessage(data.message, true);
             lastId = data.message.id;
-        } catch (e) { chatInput.value = msg; }
+        } catch (e) { chatInput.value = msg; toast('Gagal mengirim pesan', 'error'); }
         chatInput.disabled = false;
         chatInput.focus();
     });
 
     function appendMessage(msg, isSelf) {
+        if (document.getElementById('msg-' + msg.id)) return;
         const d = document.createElement('div');
         d.id = 'msg-' + msg.id;
         d.className = 'flex ' + (isSelf ? 'justify-end' : 'justify-start');
         const time = new Date(msg.created_at || Date.now()).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'});
         const text = escHtml(msg.message);
-        d.innerHTML = `<div class="max-w-[85%] lg:max-w-[70%] ${isSelf ? 'bg-emerald-500 text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md'} px-4 py-2.5">${!isSelf ? `<p class="text-xs font-medium text-blue-600 mb-0.5">${msg.user?.name || ''}</p>` : ''}<p class="text-sm leading-relaxed break-words msg-text">${text}</p><div class="flex items-center justify-between mt-1"><span class="text-xs ${isSelf ? 'text-emerald-200' : 'text-gray-400'}">${time}</span>${isSelf ? `<div class="flex gap-2">` +
-            `<button onclick="editMessage(${msg.id})" class="text-xs ${isSelf ? 'text-emerald-200 hover:text-white' : 'text-gray-400 hover:text-gray-600'}">Edit</button>` +
-            `<button onclick="deleteMessage(${msg.id})" class="text-xs ${isSelf ? 'text-emerald-200 hover:text-white' : 'text-gray-400 hover:text-gray-600'}">Hapus</button>` +
-        `</div>` : ''}</div></div>`;
+        d.innerHTML = `<div class="max-w-[85%] lg:max-w-[70%] ${isSelf ? 'bg-emerald-500 text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md'} px-4 py-2.5">${!isSelf ? `<p class="text-xs font-medium text-blue-600 mb-0.5">${msg.user?.name || ''}</p>` : ''}<div class="msg-view"><p class="text-sm leading-relaxed break-words msg-text">${text}</p><div class="flex items-center justify-between mt-1"><span class="text-xs ${isSelf ? 'text-emerald-200' : 'text-gray-400'}">${time}</span>${isSelf ? `<div class="flex gap-2"><button onclick="editMessage(${msg.id})" class="text-xs text-emerald-200 hover:text-white">Edit</button><button onclick="showDeleteModal(${msg.id})" class="text-xs text-emerald-200 hover:text-white">Hapus</button></div>` : ''}</div></div><div class="msg-edit hidden"><textarea class="edit-input w-full text-sm bg-white/20 rounded-lg p-2 text-white resize-none" rows="2">${text}</textarea><div class="flex gap-2 mt-2"><button onclick="saveEdit(${msg.id})" class="text-xs px-2 py-1 bg-white text-emerald-600 rounded-lg font-medium">Simpan</button><button onclick="cancelEdit(${msg.id})" class="text-xs px-2 py-1 bg-white/20 text-white rounded-lg">Batal</button></div></div></div>`;
         chatMessages.appendChild(d);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    window.editMessage = async (id) => {
+    window.editMessage = (id) => {
         const el = document.getElementById('msg-' + id);
-        const textEl = el.querySelector('.msg-text');
-        const current = textEl.textContent;
-        const newText = prompt('Edit pesan:', current);
-        if (!newText || newText.trim() === current.trim()) return;
+        el.querySelector('.msg-view').classList.add('hidden');
+        el.querySelector('.msg-edit').classList.remove('hidden');
+        el.querySelector('.edit-input').focus();
+    };
+
+    window.saveEdit = async (id) => {
+        const el = document.getElementById('msg-' + id);
+        const input = el.querySelector('.edit-input');
+        const newText = input.value.trim();
+        if (!newText) return;
         try {
             const res = await fetch('/dosen/chat/' + classId + '/message/' + id + '/edit', {
                 method: 'POST', headers: jsonHeaders(),
-                body: JSON.stringify({ message: newText.trim() }),
+                body: JSON.stringify({ message: newText }),
             });
             if (!res.ok) throw new Error();
-            textEl.textContent = newText.trim();
-        } catch (e) { alert('Gagal mengedit pesan'); }
+            el.querySelector('.msg-text').textContent = newText;
+            el.querySelector('.msg-view').classList.remove('hidden');
+            el.querySelector('.msg-edit').classList.add('hidden');
+            toast('Pesan telah diedit');
+        } catch (e) { toast('Gagal mengedit pesan', 'error'); }
     };
 
-    window.deleteMessage = async (id) => {
-        if (!confirm('Hapus pesan ini?')) return;
+    window.cancelEdit = (id) => {
+        const el = document.getElementById('msg-' + id);
+        el.querySelector('.edit-input').value = el.querySelector('.msg-text').textContent;
+        el.querySelector('.msg-view').classList.remove('hidden');
+        el.querySelector('.msg-edit').classList.add('hidden');
+    };
+
+    window.showDeleteModal = (id) => {
+        document.getElementById('deleteId').value = id;
+        document.getElementById('deleteModal').classList.remove('hidden');
+        document.getElementById('deleteModal').classList.add('flex');
+    };
+
+    window.closeDeleteModal = (e) => {
+        if (e && e.target !== e.currentTarget) return;
+        document.getElementById('deleteModal').classList.add('hidden');
+        document.getElementById('deleteModal').classList.remove('flex');
+    };
+
+    window.confirmDelete = async () => {
+        const id = document.getElementById('deleteId').value;
         try {
             const res = await fetch('/dosen/chat/' + classId + '/message/' + id + '/delete', {
                 method: 'POST', headers: jsonHeaders(),
             });
             if (!res.ok) throw new Error();
             const el = document.getElementById('msg-' + id);
-            el.style.transition = 'opacity 0.3s';
+            el.style.transition = 'all 0.3s';
             el.style.opacity = '0';
+            el.style.transform = 'scale(0.95)';
             setTimeout(() => el.remove(), 300);
-        } catch (e) { alert('Gagal menghapus pesan'); }
+            toast('Pesan telah dihapus');
+        } catch (e) { toast('Gagal menghapus pesan', 'error'); }
+        closeDeleteModal();
     };
 
     function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
