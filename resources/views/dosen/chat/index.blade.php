@@ -4,85 +4,106 @@
 @section('page-title', 'Chat Kelas')
 
 @section('content')
-<div class="flex flex-col lg:flex-row gap-4 lg:gap-6 h-[calc(100dvh-10rem)] lg:h-[calc(100vh-12rem)]">
-    @if(isset($class))
-    <div class="lg:hidden">
+@if(isset($class))
+    <div class="lg:hidden mb-3">
         <select onchange="window.location.href=this.value" class="w-full rounded-xl border-gray-200 text-sm focus:border-emerald-500 focus:ring-emerald-500">
             @foreach($classes as $c)
                 <option value="{{ route('dosen.chat.class', $c) }}" {{ $class->id === $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
             @endforeach
         </select>
     </div>
-    @endif
 
-    <div class="hidden lg:block w-64 flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="p-3 border-b border-gray-100">
-            <h3 class="text-sm font-semibold text-gray-800">Kelas Saya</h3>
-        </div>
-        <div class="overflow-y-auto" style="height: calc(100% - 48px);">
-            @foreach($classes as $c)
-                <a href="{{ route('dosen.chat.class', $c) }}" class="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 transition-colors {{ isset($class) && $class->id === $c->id ? 'bg-emerald-50 border-l-2 border-l-emerald-500' : '' }}">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{{ substr($c->name, 0, 2) }}</div>
-                    <div class="min-w-0">
-                        <p class="text-sm font-medium text-gray-800 truncate">{{ $c->name }}</p>
-                        <p class="text-xs text-gray-400">Klik untuk chat</p>
-                    </div>
-                </a>
-            @endforeach
-        </div>
-    </div>
-
-    <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden min-h-0">
-        @if(isset($class))
-            <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50 flex items-center justify-between">
-                <div>
-                    <h3 class="font-semibold text-gray-800">{{ $class->name }}</h3>
-                    <p class="text-xs text-gray-500">Diskusi kelas</p>
+    <div class="flex gap-6">
+        <div class="hidden lg:block w-64 flex-shrink-0">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-4">
+                <div class="p-3 border-b border-gray-100">
+                    <h3 class="text-sm font-semibold text-gray-800">Kelas Saya</h3>
                 </div>
-                <a href="{{ route('dosen.chat.index') }}" class="lg:hidden text-xs text-emerald-600">Ganti kelas</a>
+                <div class="max-h-96 overflow-y-auto">
+                    @foreach($classes as $c)
+                        <a href="{{ route('dosen.chat.class', $c) }}" class="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 transition-colors {{ $class->id === $c->id ? 'bg-emerald-50 border-l-2 border-l-emerald-500' : '' }}">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{{ substr($c->name, 0, 2) }}</div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate">{{ $c->name }}</p>
+                                <p class="text-xs text-gray-400">Klik untuk chat</p>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
             </div>
+        </div>
 
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3">
-                @forelse($messages as $msg)
-                    <div class="flex {{ $msg->user_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
-                        <div class="max-w-[85%] lg:max-w-[70%] {{ $msg->user_id === auth()->id() ? 'bg-emerald-500 text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md' }} px-4 py-2.5">
-                            @if($msg->user_id !== auth()->id())
-                                <p class="text-xs font-medium text-blue-600 mb-0.5">{{ $msg->user->name }}</p>
-                            @endif
-                            <p class="text-sm leading-relaxed break-words">{{ $msg->message }}</p>
-                            <p class="text-xs mt-1 {{ $msg->user_id === auth()->id() ? 'text-emerald-200' : 'text-gray-400' }}">{{ $msg->created_at->format('H:i') }}</p>
+        <div class="flex-1 min-w-0">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">{{ $class->name }}</h3>
+                        <p class="text-xs text-gray-500">Diskusi kelas</p>
+                    </div>
+                </div>
+
+                <div id="chat-messages" class="p-4 space-y-3 max-h-[60vh] lg:max-h-[65vh] overflow-y-auto">
+                    @forelse($messages as $msg)
+                        <div class="flex {{ $msg->user_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
+                            <div class="max-w-[85%] lg:max-w-[70%] {{ $msg->user_id === auth()->id() ? 'bg-emerald-500 text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md' }} px-4 py-2.5">
+                                @if($msg->user_id !== auth()->id())
+                                    <p class="text-xs font-medium text-blue-600 mb-0.5">{{ $msg->user->name }}</p>
+                                @endif
+                                <p class="text-sm leading-relaxed break-words">{{ $msg->message }}</p>
+                                <p class="text-xs mt-1 {{ $msg->user_id === auth()->id() ? 'text-emerald-200' : 'text-gray-400' }}">{{ $msg->created_at->format('H:i') }}</p>
+                            </div>
                         </div>
-                    </div>
-                @empty
-                    <div class="text-center text-gray-400 text-sm py-8">
-                        <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                        <p>Belum ada pesan. Mulai diskusi!</p>
-                    </div>
-                @endforelse
-            </div>
+                    @empty
+                        <div class="text-center text-gray-400 text-sm py-8">
+                            <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                            <p>Belum ada pesan. Mulai diskusi!</p>
+                        </div>
+                    @endforelse
+                </div>
 
-            <form id="chat-form" class="px-4 py-3 border-t border-gray-100 bg-white flex-shrink-0">
-                @csrf
-                <div class="flex gap-2">
-                    <input type="text" name="message" id="chat-input" autocomplete="off" required
-                           class="flex-1 rounded-xl border-gray-200 bg-gray-50 text-sm focus:border-emerald-500 focus:ring-emerald-500"
-                           placeholder="Ketik pesan...">
-                    <button type="submit" class="px-4 lg:px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium rounded-xl transition-all shadow-sm flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                        <span class="hidden lg:inline">Kirim</span>
-                    </button>
+                <form id="chat-form" class="px-4 py-3 border-t border-gray-100 bg-white">
+                    @csrf
+                    <div class="flex gap-2">
+                        <input type="text" name="message" id="chat-input" autocomplete="off" required
+                               class="flex-1 rounded-xl border-gray-200 bg-gray-50 text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="Ketik pesan...">
+                        <button type="submit" class="px-4 lg:px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                            <span class="hidden lg:inline">Kirim</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@else
+    <div class="flex gap-6">
+        <div class="hidden lg:block w-64 flex-shrink-0">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-4">
+                <div class="p-3 border-b border-gray-100">
+                    <h3 class="text-sm font-semibold text-gray-800">Daftar Kelas</h3>
                 </div>
-            </form>
-        @else
-            <div class="flex-1 flex items-center justify-center text-gray-400">
-                <div class="text-center">
-                    <svg class="w-16 h-16 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                    <p class="text-sm">Pilih kelas untuk mulai chat</p>
+                <div class="max-h-96 overflow-y-auto">
+                    @foreach($classes as $c)
+                        <a href="{{ route('dosen.chat.class', $c) }}" class="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 transition-colors">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{{ substr($c->name, 0, 2) }}</div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate">{{ $c->name }}</p>
+                                <p class="text-xs text-gray-400">Klik untuk chat</p>
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
             </div>
-        @endif
+        </div>
+        <div class="flex-1 flex items-center justify-center text-gray-400 bg-white rounded-xl shadow-sm border border-gray-200 min-h-[60vh]">
+            <div class="text-center">
+                <svg class="w-16 h-16 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                <p class="text-sm">Pilih kelas untuk mulai chat</p>
+            </div>
+        </div>
     </div>
-</div>
+@endif
 
 @if(isset($class))
 @push('scripts')
