@@ -89,10 +89,11 @@
         chatInput.value = '';
         chatInput.disabled = true;
 
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         try {
             const res = await fetch('{{ route("mahasiswa.chat.send", $class) }}', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'X-XSRF-TOKEN': csrf },
                 body: JSON.stringify({ message: msg }),
             });
             const data = await res.json();

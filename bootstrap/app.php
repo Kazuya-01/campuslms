@@ -26,6 +26,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'mahasiswa/chat/*/send',
+            'dosen/chat/*/send',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
