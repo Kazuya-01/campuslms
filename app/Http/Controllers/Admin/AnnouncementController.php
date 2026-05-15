@@ -14,12 +14,14 @@ class AnnouncementController extends Controller
     public function index()
     {
         $announcements = Announcement::with('user', 'class')->latest()->paginate(20);
+
         return view('admin.announcements.index', compact('announcements'));
     }
 
     public function create()
     {
         $classes = LMSClass::all();
+
         return view('admin.announcements.create', compact('classes'));
     }
 
@@ -59,6 +61,7 @@ class AnnouncementController extends Controller
     public function edit(Announcement $announcement)
     {
         $classes = LMSClass::all();
+
         return view('admin.announcements.edit', compact('announcement', 'classes'));
     }
 
@@ -84,6 +87,7 @@ class AnnouncementController extends Controller
     public function destroy(Announcement $announcement)
     {
         $announcement->delete();
+
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement deleted.');
     }
 }

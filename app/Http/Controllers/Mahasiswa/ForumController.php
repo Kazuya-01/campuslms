@@ -14,7 +14,7 @@ class ForumController extends Controller
     public function index()
     {
         $classes = auth()->user()->enrolledClasses()
-            ->with(['forumThreads' => fn($q) => $q->withCount('replies')->latest()->take(5)])
+            ->with(['forumThreads' => fn ($q) => $q->withCount('replies')->latest()->take(5)])
             ->get();
 
         $recentThreads = ForumThread::whereIn('class_id', $classes->pluck('id'))
@@ -30,7 +30,9 @@ class ForumController extends Controller
     public function class(LMSClass $class)
     {
         $user = auth()->user();
-        if (!$user->enrolledClasses()->where('class_id', $class->id)->exists()) abort(403);
+        if (! $user->enrolledClasses()->where('class_id', $class->id)->exists()) {
+            abort(403);
+        }
 
         $class->load(['dosen', 'forumThreads' => function ($q) {
             $q->with('user')->withCount('replies')->latest();
@@ -42,12 +44,14 @@ class ForumController extends Controller
     public function show(ForumThread $thread)
     {
         $user = auth()->user();
-        if (!$user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) abort(403);
+        if (! $user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) {
+            abort(403);
+        }
 
         $thread->load([
             'user',
             'class',
-            'replies' => fn($q) => $q->with('user', 'likes', 'replies.user')->oldest(),
+            'replies' => fn ($q) => $q->with('user', 'likes', 'replies.user')->oldest(),
         ]);
 
         return view('mahasiswa.forum.show', compact('thread'));
@@ -56,7 +60,9 @@ class ForumController extends Controller
     public function reply(Request $request, ForumThread $thread)
     {
         $user = auth()->user();
-        if (!$user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) abort(403);
+        if (! $user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) {
+            abort(403);
+        }
 
         $validated = $request->validate([
             'content' => 'required|string|min:1',
@@ -78,7 +84,9 @@ class ForumController extends Controller
     {
         $user = auth()->user();
         $thread = $reply->thread;
-        if (!$user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) abort(403);
+        if (! $user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) {
+            abort(403);
+        }
 
         $existing = ForumReplyLike::where('forum_reply_id', $reply->id)
             ->where('user_id', $user->id)
@@ -86,6 +94,7 @@ class ForumController extends Controller
 
         if ($existing) {
             $existing->delete();
+
             return back()->with('success', 'Like dihapus.');
         }
 

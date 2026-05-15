@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
-use App\Models\LMSClass;
 use Illuminate\Http\Request;
 
 class AssignmentController extends Controller
@@ -17,6 +16,7 @@ class AssignmentController extends Controller
             ->with('class')
             ->latest()
             ->paginate(20);
+
         return view('mahasiswa.assignments.index', compact('assignments'));
     }
 
@@ -25,7 +25,7 @@ class AssignmentController extends Controller
         $user = auth()->user();
         $class = $assignment->class;
 
-        if (!$user->enrolledClasses()->where('class_id', $class->id)->exists()) {
+        if (! $user->enrolledClasses()->where('class_id', $class->id)->exists()) {
             abort(403);
         }
 
@@ -41,7 +41,7 @@ class AssignmentController extends Controller
         $user = auth()->user();
         $class = $assignment->class;
 
-        if (!$user->enrolledClasses()->where('class_id', $class->id)->exists()) {
+        if (! $user->enrolledClasses()->where('class_id', $class->id)->exists()) {
             abort(403);
         }
 

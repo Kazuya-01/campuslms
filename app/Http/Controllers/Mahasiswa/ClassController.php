@@ -14,10 +14,11 @@ class ClassController extends Controller
     {
         $classes = auth()->user()->enrolledClasses()->with('dosen')->withPivot('progress')->get();
         $availableClasses = LMSClass::where('is_active', true)
-            ->whereDoesntHave('students', fn($q) => $q->where('user_id', auth()->id()))
+            ->whereDoesntHave('students', fn ($q) => $q->where('user_id', auth()->id()))
             ->with('dosen')
             ->take(6)
             ->get();
+
         return view('mahasiswa.classes.index', compact('classes', 'availableClasses'));
     }
 
@@ -25,16 +26,16 @@ class ClassController extends Controller
     {
         $user = auth()->user();
         $isEnrolled = $user->enrolledClasses()->where('class_id', $class->id)->exists();
-        if (!$isEnrolled) {
+        if (! $isEnrolled) {
             return redirect()->route('mahasiswa.classes.index')->with('error', 'Anda belum terdaftar di kelas ini.');
         }
 
         $class->load([
-            'materials' => fn($q) => $q->ordered(),
-            'assignments' => fn($q) => $q->with(['submissions' => fn($sq) => $sq->where('user_id', $user->id)]),
+            'materials' => fn ($q) => $q->ordered(),
+            'assignments' => fn ($q) => $q->with(['submissions' => fn ($sq) => $sq->where('user_id', $user->id)]),
             'quizzes.questions',
-            'forumThreads' => fn($q) => $q->latest(),
-            'announcements' => fn($q) => $q->latest(),
+            'forumThreads' => fn ($q) => $q->latest(),
+            'announcements' => fn ($q) => $q->latest(),
         ]);
 
         $enrollment = $user->enrolledClasses()->where('class_id', $class->id)->first();
@@ -62,13 +63,15 @@ class ClassController extends Controller
 
         auth()->user()->enrolledClasses()->attach($class->id, ['progress' => 0]);
 
-        return redirect()->route('mahasiswa.classes.show', $class->slug)->with('success', 'Berhasil bergabung ke kelas ' . $class->name);
+        return redirect()->route('mahasiswa.classes.show', $class->slug)->with('success', 'Berhasil bergabung ke kelas '.$class->name);
     }
 
     public function markMaterial(LMSClass $class, Material $material)
     {
         $user = auth()->user();
-        if (!$user->enrolledClasses()->where('class_id', $class->id)->exists()) abort(403);
+        if (! $user->enrolledClasses()->where('class_id', $class->id)->exists()) {
+            abort(403);
+        }
 
         MaterialProgress::firstOrCreate([
             'user_id' => $user->id,
@@ -89,7 +92,9 @@ class ClassController extends Controller
     public function viewMaterial(LMSClass $class, Material $material)
     {
         $user = auth()->user();
-        if (!$user->enrolledClasses()->where('class_id', $class->id)->exists()) abort(403);
+        if (! $user->enrolledClasses()->where('class_id', $class->id)->exists()) {
+            abort(403);
+        }
 
         $isCompleted = MaterialProgress::where('user_id', $user->id)
             ->where('material_id', $material->id)

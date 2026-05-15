@@ -33,7 +33,7 @@ class Certificate extends Model
     protected static function booted(): void
     {
         static::creating(function (Certificate $certificate) {
-            $certificate->certificate_number = 'CRT-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
+            $certificate->certificate_number = 'CRT-'.now()->format('Ymd').'-'.strtoupper(substr(uniqid(), -6));
         });
     }
 }

@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         if ($user->hasRole('mahasiswa')) {
             return redirect()->route('mahasiswa.dashboard');
         }
+
         return redirect()->route('login');
     })->name('dashboard');
 

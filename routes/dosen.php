@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Dosen\AssignmentController;
+use App\Http\Controllers\Dosen\CalendarController;
 use App\Http\Controllers\Dosen\CertificateController as DosenCertificateController;
+use App\Http\Controllers\Dosen\ChatController;
 use App\Http\Controllers\Dosen\ClassController as DosenClassController;
 use App\Http\Controllers\Dosen\DashboardController as DosenDashboardController;
 use App\Http\Controllers\Dosen\ForumController as DosenForumController;
@@ -41,14 +43,14 @@ Route::middleware(['auth', 'verified', 'role:dosen'])->prefix('dosen')->name('do
     Route::post('certificates', [DosenCertificateController::class, 'store'])->name('certificates.store');
     Route::get('certificates/{certificate}/download', [DosenCertificateController::class, 'download'])->name('certificates.download');
 
-    Route::get('calendar', [App\Http\Controllers\Dosen\CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('calendar', [CalendarController::class, 'index'])->name('calendar.index');
 
-    Route::get('chat', [App\Http\Controllers\Dosen\ChatController::class, 'index'])->name('chat.index');
-    Route::get('chat/{class}', [App\Http\Controllers\Dosen\ChatController::class, 'class'])->name('chat.class');
-    Route::get('chat/{class}/messages', [App\Http\Controllers\Dosen\ChatController::class, 'messages'])->name('chat.messages');
-    Route::post('chat/{class}/send', [App\Http\Controllers\Dosen\ChatController::class, 'send'])->name('chat.send');
-    Route::post('chat/{class}/message/{message}/edit', [App\Http\Controllers\Dosen\ChatController::class, 'update'])->name('chat.update');
-    Route::post('chat/{class}/message/{message}/delete', [App\Http\Controllers\Dosen\ChatController::class, 'destroy'])->name('chat.delete');
+    Route::get('chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('chat/{class}', [ChatController::class, 'class'])->name('chat.class');
+    Route::get('chat/{class}/messages', [ChatController::class, 'messages'])->name('chat.messages');
+    Route::post('chat/{class}/send', [ChatController::class, 'send'])->name('chat.send');
+    Route::post('chat/{class}/message/{message}/edit', [ChatController::class, 'update'])->name('chat.update');
+    Route::post('chat/{class}/message/{message}/delete', [ChatController::class, 'destroy'])->name('chat.delete');
 
     Route::get('forum', [DosenForumController::class, 'index'])->name('forum.index');
     Route::get('forum/class/{class}', [DosenForumController::class, 'class'])->name('forum.class');

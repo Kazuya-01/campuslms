@@ -81,7 +81,7 @@ class InteractionSeeder extends Seeder
             Announcement::create([
                 'user_id' => $dosen->id,
                 'class_id' => $kelasItem->id,
-                'title' => 'Selamat Datang di Mata Kuliah ' . $namaKelas,
+                'title' => 'Selamat Datang di Mata Kuliah '.$namaKelas,
                 'content' => 'Selamat datang mahasiswa! Silakan pelajari materi pertemuan pertama yang sudah diupload. Jangan lupa untuk bergabung di forum diskusi kelas.',
                 'is_pinned' => true,
                 'is_global' => false,

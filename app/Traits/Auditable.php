@@ -27,7 +27,9 @@ trait Auditable
 
     protected static function logAudit(string $action, $model, $oldValues, $newValues): void
     {
-        if (!Auth::check()) return;
+        if (! Auth::check()) {
+            return;
+        }
 
         AuditLog::create([
             'user_id' => Auth::id(),

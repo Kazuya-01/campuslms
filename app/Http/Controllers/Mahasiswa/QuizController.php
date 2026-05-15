@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Grade;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizAttemptAnswer;
@@ -30,8 +31,12 @@ class QuizController extends Controller
     public function show(Quiz $quiz)
     {
         $user = auth()->user();
-        if (!$user->enrolledClasses()->where('class_id', $quiz->class_id)->exists()) abort(403);
-        if (!$quiz->is_active) abort(404);
+        if (! $user->enrolledClasses()->where('class_id', $quiz->class_id)->exists()) {
+            abort(403);
+        }
+        if (! $quiz->is_active) {
+            abort(404);
+        }
 
         $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
             ->where('user_id', $user->id)
@@ -44,8 +49,12 @@ class QuizController extends Controller
     public function start(Request $request, Quiz $quiz)
     {
         $user = auth()->user();
-        if (!$user->enrolledClasses()->where('class_id', $quiz->class_id)->exists()) abort(403);
-        if (!$quiz->is_active) abort(404);
+        if (! $user->enrolledClasses()->where('class_id', $quiz->class_id)->exists()) {
+            abort(403);
+        }
+        if (! $quiz->is_active) {
+            abort(404);
+        }
 
         $completed = QuizAttempt::where('quiz_id', $quiz->id)
             ->where('user_id', $user->id)
@@ -63,6 +72,7 @@ class QuizController extends Controller
 
         if ($inProgress) {
             $quiz->load('questions');
+
             return view('mahasiswa.quizzes.attempt', ['quiz' => $quiz, 'attempt' => $inProgress]);
         }
 
@@ -85,7 +95,9 @@ class QuizController extends Controller
     public function submit(Request $request, Quiz $quiz)
     {
         $user = auth()->user();
-        if (!$user->enrolledClasses()->where('class_id', $quiz->class_id)->exists()) abort(403);
+        if (! $user->enrolledClasses()->where('class_id', $quiz->class_id)->exists()) {
+            abort(403);
+        }
 
         $attempt = QuizAttempt::where('quiz_id', $quiz->id)
             ->where('user_id', $user->id)
@@ -98,12 +110,19 @@ class QuizController extends Controller
         $earnedPoints = 0;
 
         foreach ($quiz->questions as $question) {
-            $answer = $request->input('question_' . $question->id);
+            $answer = $request->input('question_'.$question->id);
             $isCorrect = null;
             $pointsEarned = 0;
 
             if ($answer !== null && $question->type === 'multiple_choice') {
-                $isCorrect = $answer === $question->correct_answer;
+                $options = $question->options ?? [];
+                $firstOption = $options[0] ?? null;
+                if (is_array($firstOption)) {
+                    $isCorrect = $answer === $question->correct_answer;
+                } else {
+                    $correctIndex = (int) $question->correct_answer;
+                    $isCorrect = isset($options[$correctIndex]) && $answer === $options[$correctIndex];
+                }
                 $pointsEarned = $isCorrect ? $question->points : 0;
             } elseif ($answer !== null && $question->type === 'essay') {
                 $pointsEarned = 0;
@@ -129,7 +148,7 @@ class QuizController extends Controller
             'status' => 'completed',
         ]);
 
-        \App\Models\Grade::updateOrCreate(
+        Grade::updateOrCreate(
             [
                 'user_id' => $user->id,
                 'class_id' => $quiz->class_id,
@@ -149,7 +168,9 @@ class QuizController extends Controller
     public function result(Quiz $quiz)
     {
         $user = auth()->user();
-        if (!$user->enrolledClasses()->where('class_id', $quiz->class_id)->exists()) abort(403);
+        if (! $user->enrolledClasses()->where('class_id', $quiz->class_id)->exists()) {
+            abort(403);
+        }
 
         $attempt = QuizAttempt::where('quiz_id', $quiz->id)
             ->where('user_id', $user->id)

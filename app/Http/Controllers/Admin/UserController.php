@@ -13,12 +13,14 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('roles')->latest()->paginate(20);
+
         return view('admin.users.index', compact('users'));
     }
 
     public function create()
     {
         $roles = Role::all();
+
         return view('admin.users.create', compact('roles'));
     }
 
@@ -53,6 +55,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
+
         return view('admin.users.edit', compact('user', 'roles'));
     }
 
@@ -60,9 +63,9 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'username' => 'nullable|string|max:50|unique:users,username,' . $user->id,
-            'nim' => 'nullable|string|max:30|unique:users,nim,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'username' => 'nullable|string|max:50|unique:users,username,'.$user->id,
+            'nim' => 'nullable|string|max:30|unique:users,nim,'.$user->id,
             'password' => 'nullable|string|min:8',
             'role' => 'required|exists:roles,name',
             'phone' => 'nullable|string|max:20',
@@ -93,6 +96,7 @@ class UserController extends Controller
             return back()->with('error', 'Cannot delete yourself.');
         }
         $user->delete();
+
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
 }

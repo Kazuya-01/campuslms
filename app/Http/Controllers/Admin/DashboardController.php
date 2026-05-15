@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\Assignment;
+use App\Models\Grade;
 use App\Models\LMSClass;
 use App\Models\Material;
 use App\Models\Quiz;
@@ -33,7 +34,7 @@ class DashboardController extends Controller
             ->latest()
             ->take(10)
             ->get()
-            ->map(fn($class) => [
+            ->map(fn ($class) => [
                 'name' => $class->name,
                 'students' => $class->students_count,
             ]);
@@ -41,11 +42,11 @@ class DashboardController extends Controller
         $gradeDistribution = [
             'labels' => ['A (≥85)', 'B (70-84)', 'C (55-69)', 'D (40-54)', 'E (<40)'],
             'data' => [
-                \App\Models\Grade::where('type', 'final')->where('score', '>=', 85)->count(),
-                \App\Models\Grade::where('type', 'final')->whereBetween('score', [70, 84.99])->count(),
-                \App\Models\Grade::where('type', 'final')->whereBetween('score', [55, 69.99])->count(),
-                \App\Models\Grade::where('type', 'final')->whereBetween('score', [40, 54.99])->count(),
-                \App\Models\Grade::where('type', 'final')->where('score', '<', 40)->count(),
+                Grade::where('type', 'final')->where('score', '>=', 85)->count(),
+                Grade::where('type', 'final')->whereBetween('score', [70, 84.99])->count(),
+                Grade::where('type', 'final')->whereBetween('score', [55, 69.99])->count(),
+                Grade::where('type', 'final')->whereBetween('score', [40, 54.99])->count(),
+                Grade::where('type', 'final')->where('score', '<', 40)->count(),
             ],
         ];
 
@@ -54,8 +55,8 @@ class DashboardController extends Controller
             $month = now()->subMonths($i);
             $monthlyActivity[] = [
                 'month' => $month->format('M'),
-                'assignments' => \App\Models\Assignment::whereMonth('created_at', $month->month)->whereYear('created_at', $month->year)->count(),
-                'quizzes' => \App\Models\Quiz::whereMonth('created_at', $month->month)->whereYear('created_at', $month->year)->count(),
+                'assignments' => Assignment::whereMonth('created_at', $month->month)->whereYear('created_at', $month->year)->count(),
+                'quizzes' => Quiz::whereMonth('created_at', $month->month)->whereYear('created_at', $month->year)->count(),
             ];
         }
 

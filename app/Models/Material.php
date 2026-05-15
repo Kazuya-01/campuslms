@@ -52,7 +52,7 @@ class Material extends Model
 
     public function getFileUrlAttribute(): ?string
     {
-        return $this->file_path ? asset('storage/' . $this->file_path) : null;
+        return $this->file_path ? asset('storage/'.$this->file_path) : null;
     }
 
     public function getFileIconAttribute(): string
@@ -68,7 +68,9 @@ class Material extends Model
 
     public function getFileSizeFormattedAttribute(): string
     {
-        if (!$this->file_size) return '';
+        if (! $this->file_size) {
+            return '';
+        }
         $units = ['B', 'KB', 'MB', 'GB'];
         $size = $this->file_size;
         $i = 0;
@@ -76,7 +78,8 @@ class Material extends Model
             $size /= 1024;
             $i++;
         }
-        return round($size, 2) . ' ' . $units[$i];
+
+        return round($size, 2).' '.$units[$i];
     }
 
     public function scopeActive($query)

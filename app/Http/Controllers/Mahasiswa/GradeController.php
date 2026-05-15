@@ -17,9 +17,9 @@ class GradeController extends Controller
             ->whereNotNull('score')
             ->with('assignment.class')
             ->get()
-            ->filter(fn($s) => $s->assignment && $s->assignment->class)
-            ->map(fn($s) => [
-                'id' => 'sub-' . $s->id,
+            ->filter(fn ($s) => $s->assignment && $s->assignment->class)
+            ->map(fn ($s) => [
+                'id' => 'sub-'.$s->id,
                 'class_id' => $s->assignment->class_id,
                 'class_name' => $s->assignment->class?->name ?? 'Kelas',
                 'title' => $s->assignment->title,
@@ -34,8 +34,8 @@ class GradeController extends Controller
         $gradeRecords = Grade::where('user_id', $userId)
             ->with('class', 'assignment', 'quiz')
             ->get()
-            ->map(fn($g) => [
-                'id' => 'grade-' . $g->id,
+            ->map(fn ($g) => [
+                'id' => 'grade-'.$g->id,
                 'class_id' => $g->class_id,
                 'class_name' => $g->class?->name ?? 'Kelas',
                 'title' => $g->assignment?->title ?? $g->quiz?->title ?? $g->type_label,
@@ -59,7 +59,7 @@ class GradeController extends Controller
             $all->put($gr['id'], $gr);
         }
 
-        $allGrades = $all->sortByDesc(fn($g) => $g['score'])->groupBy('class_id');
+        $allGrades = $all->sortByDesc(fn ($g) => $g['score'])->groupBy('class_id');
 
         return view('mahasiswa.grades.index', compact('allGrades'));
     }

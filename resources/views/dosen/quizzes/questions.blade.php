@@ -19,10 +19,22 @@
                             </div>
                             <p class="text-sm font-medium text-gray-800 dark:text-white">{{ $index + 1 }}. {{ $q->question }}</p>
                             @if($q->type === 'multiple_choice' && $q->options)
+                                @php $isAssoc = is_array($q->options[0] ?? null); @endphp
                                 <div class="mt-2 space-y-1">
                                     @foreach($q->options as $key => $opt)
-                                        <p class="text-xs {{ $key === $q->correct_answer ? 'text-green-600 dark:text-green-400 font-medium' : 'text-gray-500 dark:text-gray-400' }}">
-                                            {{ chr(65 + (int)$key) }}. {{ $opt }} {{ $key === $q->correct_answer ? '✓' : '' }}
+                                        @php
+                                            if ($isAssoc) {
+                                                $letter = $opt['value'];
+                                                $label = $opt['label'];
+                                                $correct = $opt['value'] === $q->correct_answer;
+                                            } else {
+                                                $letter = chr(65 + (int)$key);
+                                                $label = $opt;
+                                                $correct = (string)$key === (string)$q->correct_answer;
+                                            }
+                                        @endphp
+                                        <p class="text-xs {{ $correct ? 'text-green-600 dark:text-green-400 font-medium' : 'text-gray-500 dark:text-gray-400' }}">
+                                            {{ $letter }}. {{ $label }} {{ $correct ? '✓' : '' }}
                                         </p>
                                     @endforeach
                                 </div>
@@ -66,7 +78,7 @@
                         </div>
                     @endforeach
                     <div class="mt-2">
-                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Correct Answer (index)</label>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Correct Answer</label>
                         <select name="correct_answer" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
                             <option value="0">A</option>
                             <option value="1">B</option>

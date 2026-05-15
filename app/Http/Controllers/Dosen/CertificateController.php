@@ -7,7 +7,6 @@ use App\Models\Certificate;
 use App\Models\LMSClass;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class CertificateController extends Controller
 {
@@ -18,12 +17,14 @@ class CertificateController extends Controller
             ->whereIn('class_id', $classes->pluck('id'))
             ->latest()
             ->paginate(20);
+
         return view('dosen.certificates.index', compact('classes', 'certificates'));
     }
 
     public function create()
     {
         $classes = LMSClass::where('dosen_id', auth()->id())->with('students')->get();
+
         return view('dosen.certificates.create', compact('classes'));
     }
 
@@ -36,7 +37,9 @@ class CertificateController extends Controller
         ]);
 
         $class = LMSClass::findOrFail($validated['class_id']);
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $count = 0;
         foreach ($validated['user_ids'] as $userId) {
@@ -44,7 +47,7 @@ class CertificateController extends Controller
                 ->where('class_id', $class->id)
                 ->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 Certificate::create([
                     'user_id' => $userId,
                     'class_id' => $class->id,
@@ -60,10 +63,13 @@ class CertificateController extends Controller
 
     public function download(Certificate $certificate)
     {
-        if ($certificate->class->dosen_id !== auth()->id()) abort(403);
+        if ($certificate->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $pdf = Pdf::loadView('certificates.template', compact('certificate'));
         $pdf->setPaper('A4', 'landscape');
-        return $pdf->download('sertifikat-' . $certificate->certificate_number . '.pdf');
+
+        return $pdf->download('sertifikat-'.$certificate->certificate_number.'.pdf');
     }
 }

@@ -90,7 +90,7 @@ class LMSClass extends Model
 
     public function getThumbnailUrlAttribute(): string
     {
-        return $this->thumbnail ? asset('storage/' . $this->thumbnail) : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=6366f1&color=fff&size=200';
+        return $this->thumbnail ? asset('storage/'.$this->thumbnail) : 'https://ui-avatars.com/api/?name='.urlencode($this->name).'&background=6366f1&color=fff&size=200';
     }
 
     public function getStudentCountAttribute(): int
@@ -129,7 +129,7 @@ class LMSClass extends Model
     private static function generateUniqueCode(): string
     {
         do {
-            $code = strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 3) . random_int(100, 999));
+            $code = strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 3).random_int(100, 999));
         } while (static::where('code', $code)->exists());
 
         return $code;

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\LMSClass;
 use App\Models\Notification;
 use App\Models\User;
 
@@ -20,7 +21,7 @@ class NotificationService
 
     public static function sendToClass(int $classId, string $type, string $title, ?string $message = null, ?array $data = null): void
     {
-        $users = \App\Models\LMSClass::find($classId)?->students;
+        $users = LMSClass::find($classId)?->students;
         if ($users) {
             foreach ($users as $user) {
                 self::send($user->id, $type, $title, $message, $data);

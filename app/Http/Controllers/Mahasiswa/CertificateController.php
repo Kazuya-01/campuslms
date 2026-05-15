@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CertificateController extends Controller
 {
@@ -13,15 +14,19 @@ class CertificateController extends Controller
             ->where('user_id', auth()->id())
             ->latest()
             ->paginate(20);
+
         return view('mahasiswa.certificates.index', compact('certificates'));
     }
 
     public function download(Certificate $certificate)
     {
-        if ($certificate->user_id !== auth()->id()) abort(403);
+        if ($certificate->user_id !== auth()->id()) {
+            abort(403);
+        }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('certificates.template', compact('certificate'));
+        $pdf = Pdf::loadView('certificates.template', compact('certificate'));
         $pdf->setPaper('A4', 'landscape');
-        return $pdf->download('certificate-' . $certificate->certificate_number . '.pdf');
+
+        return $pdf->download('certificate-'.$certificate->certificate_number.'.pdf');
     }
 }

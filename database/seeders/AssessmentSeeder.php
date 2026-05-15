@@ -66,7 +66,7 @@ class AssessmentSeeder extends Seeder
             }
 
             // Assignment submissions
-            $kelasItem->assignments->each(function ($assignment) use ($kelasItem, $mahasiswa) {
+            $kelasItem->assignments->each(function ($assignment) use ($mahasiswa) {
                 foreach ($mahasiswa as $mhs) {
                     $statuses = ['submitted', 'graded', 'graded', 'submitted'];
                     $status = $statuses[array_rand($statuses)];
@@ -106,8 +106,8 @@ class AssessmentSeeder extends Seeder
                 Notification::create([
                     'user_id' => $mhs->id,
                     'type' => 'info',
-                    'title' => 'Materi Baru: ' . ($kelasItem->materials()->first()->title ?? $kelasItem->name),
-                    'message' => 'Materi baru telah ditambahkan di kelas ' . $kelasItem->name . '. Silakan dipelajari.',
+                    'title' => 'Materi Baru: '.($kelasItem->materials()->first()->title ?? $kelasItem->name),
+                    'message' => 'Materi baru telah ditambahkan di kelas '.$kelasItem->name.'. Silakan dipelajari.',
                     'data' => ['class_id' => $kelasItem->id, 'type' => 'material'],
                     'is_read' => (bool) rand(0, 1),
                 ]);
@@ -116,7 +116,7 @@ class AssessmentSeeder extends Seeder
                     'user_id' => $mhs->id,
                     'type' => 'warning',
                     'title' => 'Tugas Mendekati Deadline',
-                    'message' => 'Tugas ' . ($kelasItem->assignments()->first()->title ?? 'Tugas') . ' akan deadline dalam 3 hari. Segera kumpulkan!',
+                    'message' => 'Tugas '.($kelasItem->assignments()->first()->title ?? 'Tugas').' akan deadline dalam 3 hari. Segera kumpulkan!',
                     'data' => ['class_id' => $kelasItem->id, 'type' => 'assignment'],
                     'is_read' => (bool) rand(0, 1),
                 ]);

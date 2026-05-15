@@ -14,7 +14,7 @@ class ForumController extends Controller
     public function index()
     {
         $classes = auth()->user()->dosenClasses()
-            ->with(['forumThreads' => fn($q) => $q->withCount('replies')->latest()->take(5)])
+            ->with(['forumThreads' => fn ($q) => $q->withCount('replies')->latest()->take(5)])
             ->get();
 
         $recentThreads = ForumThread::whereIn('class_id', $classes->pluck('id'))
@@ -30,7 +30,9 @@ class ForumController extends Controller
     public function class(LMSClass $class)
     {
         $user = auth()->user();
-        if ($class->dosen_id !== $user->id) abort(403);
+        if ($class->dosen_id !== $user->id) {
+            abort(403);
+        }
 
         $class->load(['forumThreads' => function ($q) {
             $q->with('user')->withCount('replies')->latest();
@@ -41,13 +43,18 @@ class ForumController extends Controller
 
     public function create(LMSClass $class)
     {
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
+
         return view('dosen.forum.create', compact('class'));
     }
 
     public function store(Request $request, LMSClass $class)
     {
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -72,13 +79,15 @@ class ForumController extends Controller
         $user = auth()->user();
         $class = $thread->class;
         if ($class->dosen_id !== $user->id) {
-            if (!$user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) abort(403);
+            if (! $user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) {
+                abort(403);
+            }
         }
 
         $thread->load([
             'user',
             'class',
-            'replies' => fn($q) => $q->with('user', 'likes', 'replies.user')->oldest(),
+            'replies' => fn ($q) => $q->with('user', 'likes', 'replies.user')->oldest(),
         ]);
 
         return view('dosen.forum.show', compact('thread'));
@@ -89,7 +98,9 @@ class ForumController extends Controller
         $user = auth()->user();
         $class = $thread->class;
         if ($class->dosen_id !== $user->id) {
-            if (!$user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) abort(403);
+            if (! $user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) {
+                abort(403);
+            }
         }
 
         $validated = $request->validate([
@@ -114,7 +125,9 @@ class ForumController extends Controller
         $thread = $reply->thread;
         $class = $thread->class;
         if ($class->dosen_id !== $user->id) {
-            if (!$user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) abort(403);
+            if (! $user->enrolledClasses()->where('class_id', $thread->class_id)->exists()) {
+                abort(403);
+            }
         }
 
         $existing = ForumReplyLike::where('forum_reply_id', $reply->id)
@@ -123,6 +136,7 @@ class ForumController extends Controller
 
         if ($existing) {
             $existing->delete();
+
             return back()->with('success', 'Like dihapus.');
         }
 
@@ -136,9 +150,12 @@ class ForumController extends Controller
 
     public function destroy(ForumThread $thread)
     {
-        if ($thread->class->dosen_id !== auth()->id()) abort(403);
+        if ($thread->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
         $class = $thread->class;
         $thread->delete();
+
         return redirect()->route('dosen.forum.class', $class)
             ->with('success', 'Thread berhasil dihapus.');
     }

@@ -54,6 +54,6 @@ class Announcement extends Model
 
     public function getAttachmentUrlAttribute(): ?string
     {
-        return $this->attachment ? asset('storage/' . $this->attachment) : null;
+        return $this->attachment ? asset('storage/'.$this->attachment) : null;
     }
 }

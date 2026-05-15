@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
+use App\Models\Grade;
 use App\Models\LMSClass;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class AssignmentController extends Controller
             ->with('class', 'submissions')
             ->latest()
             ->paginate(20);
+
         return view('dosen.assignments.index', compact('assignments'));
     }
 
@@ -25,6 +27,7 @@ class AssignmentController extends Controller
     {
         $classes = LMSClass::where('dosen_id', auth()->id())->get();
         $selectedClass = $request->class_id ? LMSClass::find($request->class_id) : null;
+
         return view('dosen.assignments.create', compact('classes', 'selectedClass'));
     }
 
@@ -41,7 +44,9 @@ class AssignmentController extends Controller
         ]);
 
         $class = LMSClass::findOrFail($validated['class_id']);
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $assignment = Assignment::create([
             'class_id' => $validated['class_id'],
@@ -56,28 +61,36 @@ class AssignmentController extends Controller
             $assignment->update(['file_path' => $request->file('file_path')->store('assignments', 'public')]);
         }
 
-        NotificationService::sendToClass($assignment->class_id, 'assignment', 'New Assignment: ' . $assignment->title, $assignment->description);
+        NotificationService::sendToClass($assignment->class_id, 'assignment', 'New Assignment: '.$assignment->title, $assignment->description);
 
         return redirect()->route('dosen.assignments.index')->with('success', 'Tugas berhasil dibuat.');
     }
 
     public function show(Assignment $assignment)
     {
-        if ($assignment->class->dosen_id !== auth()->id()) abort(403);
+        if ($assignment->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
         $assignment->load('submissions.user', 'class');
+
         return view('dosen.assignments.show', compact('assignment'));
     }
 
     public function edit(Assignment $assignment)
     {
-        if ($assignment->class->dosen_id !== auth()->id()) abort(403);
+        if ($assignment->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
         $classes = LMSClass::where('dosen_id', auth()->id())->get();
+
         return view('dosen.assignments.edit', compact('assignment', 'classes'));
     }
 
     public function update(Request $request, Assignment $assignment)
     {
-        if ($assignment->class->dosen_id !== auth()->id()) abort(403);
+        if ($assignment->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -98,17 +111,22 @@ class AssignmentController extends Controller
 
     public function destroy(Assignment $assignment)
     {
-        if ($assignment->class->dosen_id !== auth()->id()) abort(403);
+        if ($assignment->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
         $assignment->delete();
+
         return redirect()->route('dosen.assignments.index')->with('success', 'Tugas berhasil dihapus.');
     }
 
     public function grade(Request $request, AssignmentSubmission $submission)
     {
-        if ($submission->assignment->class->dosen_id !== auth()->id()) abort(403);
+        if ($submission->assignment->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $validated = $request->validate([
-            'score' => 'required|numeric|min:0|max:' . $submission->assignment->max_score,
+            'score' => 'required|numeric|min:0|max:'.$submission->assignment->max_score,
             'feedback' => 'nullable|string',
         ]);
 
@@ -123,7 +141,7 @@ class AssignmentController extends Controller
             $submission->update(['feedback_file' => $request->file('feedback_file')->store('feedback', 'public')]);
         }
 
-        $grade = \App\Models\Grade::updateOrCreate(
+        $grade = Grade::updateOrCreate(
             [
                 'user_id' => $submission->user_id,
                 'class_id' => $submission->assignment->class_id,
@@ -136,11 +154,11 @@ class AssignmentController extends Controller
             ]
         );
 
-        if (!$grade->wasRecentlyCreated && !$grade->wasChanged()) {
+        if (! $grade->wasRecentlyCreated && ! $grade->wasChanged()) {
             \Log::warning('Grade not saved', ['grade_id' => $grade->id, 'user_id' => $submission->user_id]);
         }
 
-        NotificationService::send($submission->user_id, 'grade', 'Tugas Dinilai: ' . $submission->assignment->title, 'Nilai: ' . $validated['score']);
+        NotificationService::send($submission->user_id, 'grade', 'Tugas Dinilai: '.$submission->assignment->title, 'Nilai: '.$validated['score']);
 
         return back()->with('success', 'Nilai berhasil diberikan.');
     }

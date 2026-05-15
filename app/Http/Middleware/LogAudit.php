@@ -19,7 +19,7 @@ class LogAudit
         if ($request->user() && $request->method() !== 'GET') {
             AuditLog::create([
                 'user_id' => $request->user()->id,
-                'action' => $request->method() . ' ' . $request->path(),
+                'action' => $request->method().' '.$request->path(),
                 'model_type' => null,
                 'model_id' => null,
                 'old_values' => null,

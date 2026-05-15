@@ -10,8 +10,9 @@ class CheckUserActive
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && !$request->user()->is_active) {
+        if ($request->user() && ! $request->user()->is_active) {
             auth()->logout();
+
             return redirect()->route('login')->with('error', 'Akun Anda telah dinonaktifkan.');
         }
 

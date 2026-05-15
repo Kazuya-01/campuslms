@@ -59,7 +59,10 @@ class Grade extends Model
 
     public function getPercentageAttribute(): float
     {
-        if ($this->max_score <= 0) return 0;
+        if ($this->max_score <= 0) {
+            return 0;
+        }
+
         return round(($this->score / $this->max_score) * 100, 2);
     }
 

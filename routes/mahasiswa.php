@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Mahasiswa\AssignmentController;
+use App\Http\Controllers\Mahasiswa\CalendarController;
 use App\Http\Controllers\Mahasiswa\CertificateController;
+use App\Http\Controllers\Mahasiswa\ChatController;
 use App\Http\Controllers\Mahasiswa\ClassController as MahasiswaClassController;
 use App\Http\Controllers\Mahasiswa\DashboardController as MahasiswaDashboardController;
 use App\Http\Controllers\Mahasiswa\ForumController as MahasiswaForumController;
@@ -26,14 +28,14 @@ Route::middleware(['auth', 'verified', 'role:mahasiswa'])->prefix('mahasiswa')->
     Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');
     Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
 
-    Route::get('calendar', [App\Http\Controllers\Mahasiswa\CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('calendar', [CalendarController::class, 'index'])->name('calendar.index');
 
-    Route::get('chat', [App\Http\Controllers\Mahasiswa\ChatController::class, 'index'])->name('chat.index');
-    Route::get('chat/{class}', [App\Http\Controllers\Mahasiswa\ChatController::class, 'class'])->name('chat.class');
-    Route::get('chat/{class}/messages', [App\Http\Controllers\Mahasiswa\ChatController::class, 'messages'])->name('chat.messages');
-    Route::post('chat/{class}/send', [App\Http\Controllers\Mahasiswa\ChatController::class, 'send'])->name('chat.send');
-    Route::post('chat/{class}/message/{message}/edit', [App\Http\Controllers\Mahasiswa\ChatController::class, 'update'])->name('chat.update');
-    Route::post('chat/{class}/message/{message}/delete', [App\Http\Controllers\Mahasiswa\ChatController::class, 'destroy'])->name('chat.delete');
+    Route::get('chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('chat/{class}', [ChatController::class, 'class'])->name('chat.class');
+    Route::get('chat/{class}/messages', [ChatController::class, 'messages'])->name('chat.messages');
+    Route::post('chat/{class}/send', [ChatController::class, 'send'])->name('chat.send');
+    Route::post('chat/{class}/message/{message}/edit', [ChatController::class, 'update'])->name('chat.update');
+    Route::post('chat/{class}/message/{message}/delete', [ChatController::class, 'destroy'])->name('chat.delete');
 
     Route::get('quizzes', [MahasiswaQuizController::class, 'index'])->name('quizzes.index');
     Route::get('quizzes/{quiz}', [MahasiswaQuizController::class, 'show'])->name('quizzes.show');

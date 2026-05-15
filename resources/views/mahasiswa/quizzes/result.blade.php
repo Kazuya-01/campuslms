@@ -40,8 +40,14 @@
                     <p class="text-gray-900 dark:text-white font-medium mb-2">{{ $answer->question->question }}</p>
                     @php
                         $options = $answer->question->options ?? [];
-                        $selectedLabel = collect($options)->firstWhere('value', $answer->answer)['label'] ?? $answer->answer;
-                        $correctLabel = collect($options)->firstWhere('value', $answer->question->correct_answer)['label'] ?? $answer->question->correct_answer;
+                        $firstOpt = $options[0] ?? null;
+                        if (is_array($firstOpt)) {
+                            $selectedLabel = collect($options)->firstWhere('value', $answer->answer)['label'] ?? $answer->answer;
+                            $correctLabel = collect($options)->firstWhere('value', $answer->question->correct_answer)['label'] ?? $answer->question->correct_answer;
+                        } else {
+                            $selectedLabel = $answer->answer;
+                            $correctLabel = $options[(int)$answer->question->correct_answer] ?? $answer->question->correct_answer;
+                        }
                     @endphp
                     @if($answer->question->type === 'multiple_choice')
                         <p class="text-sm text-gray-600 dark:text-gray-400">Jawabanmu: <span class="{{ $answer->is_correct ? 'text-green-600 font-medium' : 'text-red-600' }}">{{ $selectedLabel }}</span></p>

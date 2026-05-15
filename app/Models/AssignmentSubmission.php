@@ -40,12 +40,12 @@ class AssignmentSubmission extends Model
 
     public function getFileUrlAttribute(): ?string
     {
-        return $this->file_path ? asset('storage/' . $this->file_path) : null;
+        return $this->file_path ? asset('storage/'.$this->file_path) : null;
     }
 
     public function getFeedbackFileUrlAttribute(): ?string
     {
-        return $this->feedback_file ? asset('storage/' . $this->feedback_file) : null;
+        return $this->feedback_file ? asset('storage/'.$this->feedback_file) : null;
     }
 
     public function getStatusLabelAttribute(): string

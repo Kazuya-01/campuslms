@@ -22,13 +22,15 @@ Route::middleware(['auth', 'verified', 'role:super_admin,admin'])->prefix('admin
     Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
     Route::get('/notifications', function () {
         if (request('ajax')) {
-            $notifs = auth()->user()->notifications()->latest()->take(5)->get()->map(fn($n) => [
+            $notifs = auth()->user()->notifications()->latest()->take(5)->get()->map(fn ($n) => [
                 'id' => $n->id, 'title' => $n->title, 'message' => $n->message,
                 'is_read' => $n->is_read, 'time_ago' => $n->time_ago,
             ]);
+
             return response()->json(['notifs' => $notifs, 'unread' => auth()->user()->notifications()->where('is_read', false)->count()]);
         }
         $notifications = auth()->user()->notifications()->latest()->paginate(20);
+
         return view('admin.notifications.index', compact('notifications'));
     })->name('notifications');
 });

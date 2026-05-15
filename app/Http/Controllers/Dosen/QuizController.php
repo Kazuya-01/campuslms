@@ -16,6 +16,7 @@ class QuizController extends Controller
     {
         $classIds = LMSClass::where('dosen_id', auth()->id())->pluck('id');
         $quizzes = Quiz::whereIn('class_id', $classIds)->with('class', 'questions')->latest()->paginate(20);
+
         return view('dosen.quizzes.index', compact('quizzes'));
     }
 
@@ -23,6 +24,7 @@ class QuizController extends Controller
     {
         $classes = LMSClass::where('dosen_id', auth()->id())->get();
         $selectedClass = $request->class_id ? LMSClass::find($request->class_id) : null;
+
         return view('dosen.quizzes.create', compact('classes', 'selectedClass'));
     }
 
@@ -40,7 +42,9 @@ class QuizController extends Controller
         ]);
 
         $class = LMSClass::findOrFail($validated['class_id']);
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $quiz = Quiz::create([
             'class_id' => $validated['class_id'],
@@ -54,21 +58,26 @@ class QuizController extends Controller
             'is_active' => true,
         ]);
 
-        NotificationService::sendToClass($quiz->class_id, 'quiz', 'New Quiz: ' . $quiz->title);
+        NotificationService::sendToClass($quiz->class_id, 'quiz', 'New Quiz: '.$quiz->title);
 
         return redirect()->route('dosen.quizzes.questions', $quiz->id)->with('success', 'Quiz created. Add questions now.');
     }
 
     public function questions(Quiz $quiz)
     {
-        if ($quiz->class->dosen_id !== auth()->id()) abort(403);
+        if ($quiz->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
         $quiz->load('questions');
+
         return view('dosen.quizzes.questions', compact('quiz'));
     }
 
     public function storeQuestion(Request $request, Quiz $quiz)
     {
-        if ($quiz->class->dosen_id !== auth()->id()) abort(403);
+        if ($quiz->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $validated = $request->validate([
             'type' => 'required|in:multiple_choice,essay',
@@ -79,21 +88,38 @@ class QuizController extends Controller
             'points' => 'required|integer|min:0',
         ]);
 
-        $quiz->questions()->create([
+        $data = [
             'type' => $validated['type'],
             'question' => $validated['question'],
-            'options' => $validated['type'] === 'multiple_choice' ? $validated['options'] : null,
             'correct_answer' => $validated['correct_answer'],
             'points' => $validated['points'],
             'order' => $quiz->questions()->count() + 1,
-        ]);
+        ];
+
+        if ($validated['type'] === 'multiple_choice') {
+            $options = [];
+            foreach ($validated['options'] as $i => $opt) {
+                $options[] = [
+                    'label' => $opt,
+                    'value' => chr(65 + $i),
+                ];
+            }
+            $data['options'] = $options;
+            $data['correct_answer'] = chr(65 + (int) $validated['correct_answer']);
+        } else {
+            $data['options'] = null;
+        }
+
+        $quiz->questions()->create($data);
 
         return back()->with('success', 'Question added.');
     }
 
     public function updateQuestion(Request $request, Quiz $quiz, QuizQuestion $question)
     {
-        if ($quiz->class->dosen_id !== auth()->id()) abort(403);
+        if ($quiz->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $validated = $request->validate([
             'type' => 'required|in:multiple_choice,essay',
@@ -103,35 +129,59 @@ class QuizController extends Controller
             'points' => 'required|integer|min:0',
         ]);
 
-        $question->update([
+        $data = [
             'type' => $validated['type'],
             'question' => $validated['question'],
-            'options' => $validated['type'] === 'multiple_choice' ? $validated['options'] : null,
             'correct_answer' => $validated['correct_answer'],
             'points' => $validated['points'],
-        ]);
+        ];
+
+        if ($validated['type'] === 'multiple_choice') {
+            $options = [];
+            foreach ($validated['options'] as $i => $opt) {
+                $options[] = [
+                    'label' => $opt,
+                    'value' => chr(65 + $i),
+                ];
+            }
+            $data['options'] = $options;
+            $data['correct_answer'] = chr(65 + (int) $validated['correct_answer']);
+        } else {
+            $data['options'] = null;
+        }
+
+        $question->update($data);
 
         return back()->with('success', 'Question updated.');
     }
 
     public function destroyQuestion(Quiz $quiz, QuizQuestion $question)
     {
-        if ($quiz->class->dosen_id !== auth()->id()) abort(403);
+        if ($quiz->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
         $question->delete();
+
         return back()->with('success', 'Question deleted.');
     }
 
     public function attempts(Quiz $quiz)
     {
-        if ($quiz->class->dosen_id !== auth()->id()) abort(403);
+        if ($quiz->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
         $attempts = QuizAttempt::where('quiz_id', $quiz->id)->with('user')->latest()->paginate(20);
+
         return view('dosen.quizzes.attempts', compact('quiz', 'attempts'));
     }
 
     public function toggle(Quiz $quiz)
     {
-        if ($quiz->class->dosen_id !== auth()->id()) abort(403);
-        $quiz->update(['is_active' => !$quiz->is_active]);
+        if ($quiz->class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
+        $quiz->update(['is_active' => ! $quiz->is_active]);
+
         return back()->with('success', 'Quiz status updated.');
     }
 }

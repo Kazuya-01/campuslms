@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
-use App\Models\LMSClass;
+use App\Models\Grade;
 use App\Models\Quiz;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,8 +34,8 @@ class DashboardController extends Controller
             ->latest()
             ->take(5)
             ->get()
-            ->filter(fn($s) => $s->assignment && $s->assignment->class)
-            ->map(fn($s) => [
+            ->filter(fn ($s) => $s->assignment && $s->assignment->class)
+            ->map(fn ($s) => [
                 'class' => $s->assignment->class,
                 'type_label' => 'Tugas',
                 'score' => $s->score,
@@ -45,7 +45,7 @@ class DashboardController extends Controller
         $grades = $gradedSubmissions;
 
         if ($grades->isEmpty()) {
-            $grades = \App\Models\Grade::with('class')
+            $grades = Grade::with('class')
                 ->where('user_id', $user->id)
                 ->latest()
                 ->take(5)
@@ -69,7 +69,7 @@ class DashboardController extends Controller
         $classesWithProgress = $user->enrolledClasses()
             ->withPivot('progress')
             ->get()
-            ->map(fn($c) => [
+            ->map(fn ($c) => [
                 'name' => $c->name,
                 'slug' => $c->slug,
                 'progress' => $c->pivot->progress,

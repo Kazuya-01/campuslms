@@ -11,20 +11,28 @@ class MaterialController extends Controller
 {
     public function index(LMSClass $class)
     {
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
         $materials = $class->materials()->ordered()->get();
+
         return view('dosen.materials.index', compact('class', 'materials'));
     }
 
     public function create(LMSClass $class)
     {
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
+
         return view('dosen.materials.create', compact('class'));
     }
 
     public function store(Request $request, LMSClass $class)
     {
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -69,14 +77,19 @@ class MaterialController extends Controller
     public function edit(Material $material)
     {
         $class = $material->class;
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
+
         return view('dosen.materials.edit', compact('class', 'material'));
     }
 
     public function update(Request $request, Material $material)
     {
         $class = $material->class;
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -105,8 +118,11 @@ class MaterialController extends Controller
     public function destroy(Material $material)
     {
         $class = $material->class;
-        if ($class->dosen_id !== auth()->id()) abort(403);
+        if ($class->dosen_id !== auth()->id()) {
+            abort(403);
+        }
         $material->delete();
+
         return redirect()->route('dosen.classes.show', $class->slug)->with('success', 'Materi berhasil dihapus.');
     }
 }
