@@ -103,17 +103,17 @@
 @endpush
 
 @if(isset($class))
-<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" onclick="closeDeleteModal(event)">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6 text-center" onclick="event.stopPropagation()">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
-            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50" onclick="closeDeleteModal(event)">
+    <div class="bg-white rounded-xl shadow-lg max-w-xs w-full mx-3 p-5 text-center" onclick="event.stopPropagation()">
+        <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 flex items-center justify-center">
+            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         </div>
-        <h3 class="text-lg font-bold text-gray-800 mb-2">Hapus Pesan?</h3>
-        <p class="text-sm text-gray-500 mb-6">Pesan akan dihapus secara permanen. Tidak bisa dibatalkan.</p>
+        <h3 class="text-base font-bold text-gray-800 mb-1">Hapus Pesan?</h3>
+        <p class="text-xs text-gray-500 mb-4">Pesan akan dihapus permanen.</p>
         <input type="hidden" id="deleteId" value="">
-        <div class="flex gap-3">
-            <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all">Batal</button>
-            <button onclick="confirmDelete()" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-medium rounded-xl transition-all shadow-sm">Ya, Hapus</button>
+        <div class="flex gap-2">
+            <button onclick="closeDeleteModal()" class="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-all">Batal</button>
+            <button onclick="confirmDelete()" class="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white text-sm font-medium rounded-lg transition-all shadow-sm">Hapus</button>
         </div>
     </div>
 </div>
