@@ -78,7 +78,6 @@
 | **Blade** + **Alpine.js 3** | Template engine & interaktivitas |
 | **Tailwind CSS 3** + **PostCSS** | Styling utility-first |
 | **Vite 8** | Build tool & Hot Module Replacement |
-| **Dark Mode** | Toggle tema gelap/terang |
 | **Collapsible Sidebar** | Navigasi responsif per role |
 | **Notification Dropdown** | Notifikasi real-time |
 
