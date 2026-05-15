@@ -81,13 +81,13 @@
 
                             @if($question->type === 'multiple_choice' && $question->options)
                                 <div class="space-y-2">
-                                    @foreach($question->options as $key => $option)
+                                    @foreach($question->options as $option)
                                         <label x-data="{ checked: false }" :class="checked ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 ring-1 ring-purple-500' : 'border-gray-200 dark:border-gray-700'" class="flex items-center p-3.5 rounded-xl border hover:border-purple-300 dark:hover:border-purple-600 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 cursor-pointer transition-all">
-                                            <input type="radio" name="question_{{ $question->id }}" value="{{ $key }}" @@change="checked = $el.checked" class="hidden" required>
+                                            <input type="radio" name="question_{{ $question->id }}" value="{{ is_array($option) ? ($option['value'] ?? '') : $option }}" @@change="checked = $el.checked" class="hidden" required>
                                             <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 flex-shrink-0 transition-all" :class="checked ? 'border-purple-500 bg-purple-500' : 'border-gray-300 dark:border-gray-600'">
                                                 <div x-show="checked" class="w-2 h-2 rounded-full bg-white"></div>
                                             </div>
-                                            <span class="text-sm text-gray-700 dark:text-gray-300" :class="checked && 'text-purple-700 dark:text-purple-300'">{{ $option }}</span>
+                                            <span class="text-sm text-gray-700 dark:text-gray-300" :class="checked && 'text-purple-700 dark:text-purple-300'">{{ is_array($option) ? ($option['label'] ?? '') : $option }}</span>
                                         </label>
                                     @endforeach
                                 </div>

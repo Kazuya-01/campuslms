@@ -38,10 +38,15 @@
                         @endif
                     </div>
                     <p class="text-gray-900 dark:text-white font-medium mb-2">{{ $answer->question->question }}</p>
+                    @php
+                        $options = $answer->question->options ?? [];
+                        $selectedLabel = collect($options)->firstWhere('value', $answer->answer)['label'] ?? $answer->answer;
+                        $correctLabel = collect($options)->firstWhere('value', $answer->question->correct_answer)['label'] ?? $answer->question->correct_answer;
+                    @endphp
                     @if($answer->question->type === 'multiple_choice')
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Jawabanmu: <span class="{{ $answer->is_correct ? 'text-green-600 font-medium' : 'text-red-600' }}">{{ $answer->answer !== null ? $answer->question->options[$answer->answer] ?? '-' : '-' }}</span></p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Jawabanmu: <span class="{{ $answer->is_correct ? 'text-green-600 font-medium' : 'text-red-600' }}">{{ $selectedLabel }}</span></p>
                         @if(!$answer->is_correct)
-                            <p class="text-sm text-green-600">Jawaban benar: {{ $answer->question->options[$answer->question->correct_answer] ?? '-' }}</p>
+                            <p class="text-sm text-green-600">Jawaban benar: {{ $correctLabel }}</p>
                         @endif
                     @else
                         <p class="text-sm text-gray-600 dark:text-gray-400">Jawaban: {{ $answer->answer }}</p>
