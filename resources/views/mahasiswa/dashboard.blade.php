@@ -87,14 +87,15 @@
         {{-- Upcoming Assignments --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
             <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Tugas Mendekati Deadline</h3>
-            <div class="space-y-3">
+            <div class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                 @forelse($upcomingAssignments as $assignment)
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700">
-                        <div>
-                            <p class="text-sm font-medium text-gray-800 dark:text-white">{{ $assignment->title }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $assignment->class?->name }} &bull; Due {{ $assignment->deadline?->diffForHumans() }}</p>
+                    <div class="flex-shrink-0 w-72 snap-start p-4 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700">
+                        <p class="text-sm font-medium text-gray-800 dark:text-white">{{ $assignment->title }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $assignment->class?->name }}</p>
+                        <div class="flex items-center justify-between mt-3">
+                            <span class="text-xs text-gray-400">Due {{ $assignment->deadline?->diffForHumans() }}</span>
+                            <span class="text-xs font-medium px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">{{ $assignment->deadline?->format('M d, H:i') }}</span>
                         </div>
-                        <span class="text-xs font-medium px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">{{ $assignment->deadline?->format('M d, H:i') }}</span>
                     </div>
                 @empty
                     <p class="text-gray-500 dark:text-gray-400 text-sm">Tidak ada tugas mendekati deadline.</p>
@@ -105,14 +106,12 @@
         {{-- Recent Grades --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
             <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Nilai Terbaru</h3>
-            <div class="space-y-3">
+            <div class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                 @forelse($grades as $grade)
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-800 dark:text-white">Nilai {{ $grade['type_label'] ?? $grade->type_label ?? 'Tugas' }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $grade['class']?->name ?? $grade->class?->name ?? '-' }}</p>
-                        </div>
-                        <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ $grade['score'] ?? $grade->score }}/{{ $grade['max_score'] ?? $grade->max_score }}</span>
+                    <div class="flex-shrink-0 w-56 snap-start p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <p class="text-sm font-medium text-gray-800 dark:text-white">Nilai {{ $grade['type_label'] ?? $grade->type_label ?? 'Tugas' }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $grade['class']?->name ?? $grade->class?->name ?? '-' }}</p>
+                        <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-2">{{ $grade['score'] ?? $grade->score }}<span class="text-sm text-gray-400">/{{ $grade['max_score'] ?? $grade->max_score }}</span></p>
                     </div>
                 @empty
                     <p class="text-gray-500 dark:text-gray-400 text-sm">Belum ada nilai.</p>
@@ -123,23 +122,25 @@
 
     {{-- Announcements --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-        <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Pengumuman Terbaru</h3>
-        <div class="space-y-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h3>
+        </div>
+        <div class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
             @forelse($announcements as $announcement)
-                <div class="pb-4 border-b border-gray-100 dark:border-gray-700 last:border-0 last:pb-0">
+                <div class="flex-shrink-0 w-80 snap-start p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div class="flex items-start space-x-3">
                         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                             {{ substr($announcement->user?->name ?? 'S', 0, 1) }}
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 min-w-0">
                             <div class="flex items-center space-x-2">
-                                <p class="text-sm font-medium text-gray-800 dark:text-white">{{ $announcement->title }}</p>
+                                <p class="text-sm font-medium text-gray-800 dark:text-white truncate">{{ $announcement->title }}</p>
                                 @if($announcement->is_pinned)
-                                    <span class="text-xs px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded">Pinned</span>
+                                    <span class="text-xs px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded flex-shrink-0">Pinned</span>
                                 @endif
                             </div>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ Str::limit($announcement->content, 150) }}</p>
-                            <p class="text-xs text-gray-400 mt-1">{{ $announcement->created_at->diffForHumans() }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ Str::limit($announcement->content, 120) }}</p>
+                            <p class="text-xs text-gray-400 mt-2">{{ $announcement->created_at->diffForHumans() }} &bull; oleh {{ $announcement->user?->name ?? 'System' }}</p>
                         </div>
                     </div>
                 </div>

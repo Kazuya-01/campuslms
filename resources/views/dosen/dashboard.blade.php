@@ -79,15 +79,22 @@
 
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
             <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Pengumpulan Terbaru</h3>
-            <div class="space-y-3">
+            <div class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                 @forelse($recentSubmissions as $submission)
-                    <div class="flex items-center space-x-3 pb-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                        <img src="{{ $submission->user?->avatar_url }}" alt="" class="w-8 h-8 rounded-full">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 dark:text-white truncate">{{ $submission->user?->name }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $submission->assignment?->title }}</p>
+                    <div class="flex-shrink-0 w-64 snap-start p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center space-x-3">
+                            <img src="{{ $submission->user?->avatar_url }}" alt="" class="w-8 h-8 rounded-full flex-shrink-0">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 dark:text-white truncate">{{ $submission->user?->name }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $submission->assignment?->title }}</p>
+                            </div>
                         </div>
-                        <span class="text-xs text-gray-400">{{ $submission->created_at->diffForHumans() }}</span>
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $submission->status === 'graded' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' }}">
+                                {{ $submission->status_label ?? $submission->status }}
+                            </span>
+                            <span class="text-xs text-gray-400">{{ $submission->created_at->diffForHumans() }}</span>
+                        </div>
                     </div>
                 @empty
                     <p class="text-gray-500 dark:text-gray-400 text-sm">Belum ada pengumpulan tugas.</p>

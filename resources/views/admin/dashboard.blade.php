@@ -91,15 +91,19 @@
         {{-- Recent Activity --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
             <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Recent Users</h3>
-            <div class="space-y-3">
+            <div class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                 @forelse($recentUsers as $user)
-                    <div class="flex items-center space-x-3">
-                        <img src="{{ $user->avatar_url }}" alt="" class="w-8 h-8 rounded-full">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 dark:text-white truncate">{{ $user->name }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $user->email }}</p>
+                    <div class="flex-shrink-0 w-56 snap-start p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center space-x-3">
+                            <img src="{{ $user->avatar_url }}" alt="" class="w-8 h-8 rounded-full flex-shrink-0">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 dark:text-white truncate">{{ $user->name }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $user->email }}</p>
+                            </div>
                         </div>
-                        <span class="text-xs text-gray-400">{{ $user->created_at->diffForHumans() }}</span>
+                        <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <span class="text-xs text-gray-400">{{ $user->created_at->diffForHumans() }}</span>
+                        </div>
                     </div>
                 @empty
                     <p class="text-gray-500 dark:text-gray-400 text-sm">No users yet.</p>
@@ -115,19 +119,22 @@
                 <h3 class="font-semibold text-gray-900 dark:text-white">Recent Classes</h3>
                 <a href="{{ route('admin.classes.index') }}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">View All</a>
             </div>
-            <div class="space-y-3">
+            <div class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                 @forelse($recentClasses as $class)
-                    <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 w-64 snap-start p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                                 {{ substr($class->name, 0, 2) }}
                             </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800 dark:text-white">{{ $class->name }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $class->dosen?->name }} &bull; {{ $class->code }}</p>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 dark:text-white truncate">{{ $class->name }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $class->dosen?->name }}</p>
                             </div>
                         </div>
-                        <span class="text-xs text-gray-400">{{ $class->created_at->diffForHumans() }}</span>
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <span class="text-xs font-mono text-gray-500 dark:text-gray-400">{{ $class->code }}</span>
+                            <span class="text-xs text-gray-400">{{ $class->created_at->diffForHumans() }}</span>
+                        </div>
                     </div>
                 @empty
                     <p class="text-gray-500 dark:text-gray-400 text-sm">No classes yet.</p>
@@ -140,11 +147,13 @@
                 <h3 class="font-semibold text-gray-900 dark:text-white">Recent Announcements</h3>
                 <a href="{{ route('admin.announcements.index') }}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">View All</a>
             </div>
-            <div class="space-y-3">
+            <div class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                 @forelse($recentAnnouncements as $announcement)
-                    <div class="pb-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                    <div class="flex-shrink-0 w-64 snap-start p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                         <p class="text-sm font-medium text-gray-800 dark:text-white">{{ $announcement->title }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">by {{ $announcement->user?->name }} &bull; {{ $announcement->created_at->diffForHumans() }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $announcement->user?->name }}</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">{{ Str::limit($announcement->content, 100) }}</p>
+                        <p class="text-xs text-gray-400 mt-2">{{ $announcement->created_at->diffForHumans() }}</p>
                     </div>
                 @empty
                     <p class="text-gray-500 dark:text-gray-400 text-sm">No announcements yet.</p>
