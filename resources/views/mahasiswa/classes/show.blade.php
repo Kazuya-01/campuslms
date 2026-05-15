@@ -99,7 +99,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ $quiz->questions->count() }} soal{{ $quiz->time_limit ? ' | ' . $quiz->time_limit . ' menit' : '' }}</p>
                         </div>
                     </div>
-                    <span class="text-xs px-2 py-0.5 rounded-full {{ $quiz->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">{{ $quiz->is_active ? 'Aktif' : 'Tidak Aktif' }}</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full {{ $quiz->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400' }}">{{ $quiz->is_active ? 'Aktif' : 'Tidak Aktif' }}</span>
                 </a>
             @empty
                 <p class="text-gray-500 dark:text-gray-400 text-sm py-4 text-center">Belum ada quiz.</p>
@@ -122,7 +122,7 @@
                         @if($submission && $submission->score !== null)
                             <span class="text-sm font-semibold text-green-600 dark:text-green-400">{{ $submission->score }}/{{ $assignment->max_score }}</span>
                         @elseif($submission)
-                            <span class="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">Submitted</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">Submitted</span>
                         @else
                             <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">Not Yet</span>
                         @endif

@@ -21,7 +21,7 @@
             <span>{{ $class->students_count }} Students</span>
             <span>{{ $class->materials->count() }} Materials</span>
             <span>{{ $class->assignments->count() }} Assignments</span>
-            <span class="px-2 py-0.5 rounded-full {{ $class->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">{{ $class->is_active ? 'Active' : 'Inactive' }}</span>
+            <span class="px-2 py-0.5 rounded-full {{ $class->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' }}">{{ $class->is_active ? 'Active' : 'Inactive' }}</span>
         </div>
     </div>
 

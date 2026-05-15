@@ -32,19 +32,19 @@
                                 <div class="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                     <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ $student->pivot->progress }}%"></div>
                                 </div>
-                                <span class="text-xs text-gray-500">{{ $student->pivot->progress }}%</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $student->pivot->progress }}%</span>
                             </div>
                         </td>
-                        <td class="px-5 py-3 text-gray-500 text-xs">{{ $student->pivot->created_at?->format('M d, Y') ?? '-' }}</td>
+                        <td class="px-5 py-3 text-gray-500 dark:text-gray-400 text-xs">{{ $student->pivot->created_at?->format('M d, Y') ?? '-' }}</td>
                         <td class="px-5 py-3 text-right">
                             <form action="{{ route('dosen.classes.students.remove', [$class, $student->id]) }}" method="POST" onsubmit="return confirm('Hapus mahasiswa ini?')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="text-xs text-red-600 hover:underline">Remove</button>
+                                <button type="submit" class="text-xs text-red-600 dark:text-red-400 hover:underline">Remove</button>
                             </form>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="px-5 py-8 text-center text-gray-500">Belum ada mahasiswa.</td></tr>
+                    <tr><td colspan="5" class="px-5 py-8 text-center text-gray-500 dark:text-gray-400">Belum ada mahasiswa.</td></tr>
                 @endforelse
             </tbody>
         </table>

@@ -33,7 +33,7 @@
                 </div>
                 <div id="file-upload" class="{{ $material->type !== 'file' ? 'hidden' : '' }}">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">File</label>
-                    <input type="file" name="file_path" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700">
+                    <input type="file" name="file_path" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-50 dark:file:bg-emerald-900/30 file:text-emerald-700 dark:file:text-emerald-300">
                 </div>
                 <div id="video-url" class="{{ $material->type !== 'video' ? 'hidden' : '' }}">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Video URL</label>

@@ -9,7 +9,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="font-semibold text-gray-900 dark:text-white">Detail Tugas</h3>
-                <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $assignment->status === 'open' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">{{ $assignment->status }}</span>
+                <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $assignment->status === 'open' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' }}">{{ $assignment->status }}</span>
             </div>
             <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $assignment->description ?? 'No description.' }}</p>
             <div class="mt-4 grid grid-cols-3 gap-4 text-sm">
@@ -32,9 +32,9 @@
                             </div>
                         </div>
                         <span class="px-2 py-0.5 text-xs font-medium rounded-full 
-                            @if($submission->status === 'graded') bg-green-100 text-green-700
-                            @elseif($submission->status === 'late') bg-red-100 text-red-700
-                            @else bg-yellow-100 text-yellow-700
+                            @if($submission->status === 'graded') bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300
+                            @elseif($submission->status === 'late') bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300
+                            @else bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300
                             @endif">
                             {{ $submission->status_label }}
                         </span>

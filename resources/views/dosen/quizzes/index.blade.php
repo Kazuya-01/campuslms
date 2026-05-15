@@ -26,7 +26,7 @@
                         <td class="px-5 py-3 text-gray-600 dark:text-gray-400">{{ $quiz->questions->count() }}</td>
                         <td class="px-5 py-3 text-gray-600 dark:text-gray-400">{{ $quiz->time_limit ? $quiz->time_limit . ' min' : 'No limit' }}</td>
                         <td class="px-5 py-3">
-                            <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $quiz->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $quiz->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400' }}">
                                 {{ $quiz->is_active ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
