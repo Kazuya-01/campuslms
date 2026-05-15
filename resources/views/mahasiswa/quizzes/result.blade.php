@@ -26,11 +26,11 @@
             @foreach($attempt->answers as $index => $answer)
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
                     <div class="flex items-start justify-between mb-2">
-                        <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $answer->question->type === 'multiple_choice' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                        <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $answer->question->type === 'multiple_choice' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' }}">
                             Soal {{ $index + 1 }} &bull; {{ $answer->question->points }} poin
                         </span>
                         @if($answer->is_correct !== null)
-                            <span class="text-xs font-medium {{ $answer->is_correct ? 'text-green-600' : 'text-red-600' }}">
+                            <span class="text-xs font-medium {{ $answer->is_correct ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
                                 {{ $answer->is_correct ? 'Benar (+' . $answer->points_earned . ')' : 'Salah (0)' }}
                             </span>
                         @else
