@@ -139,7 +139,15 @@
                                     <span class="text-xs px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded flex-shrink-0">Pinned</span>
                                 @endif
                             </div>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ Str::limit($announcement->content, 120) }}</p>
+                            <div x-data="{ show: false }" class="relative">
+                                <p @@mouseenter="show = true" @@mouseleave="show = false" class="text-sm text-gray-600 dark:text-gray-400 mt-1 truncate cursor-default">{{ $announcement->content }}</p>
+                                <div x-show="show" x-cloak @@mouseenter="show = true" @@mouseleave="show = false"
+                                     x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-1"
+                                     class="absolute z-30 bottom-full left-0 mb-2 w-72 p-3 bg-gray-900 text-white text-sm rounded-xl shadow-xl">
+                                    <p>{{ $announcement->content }}</p>
+                                    <div class="absolute top-full left-4 w-3 h-3 bg-gray-900 transform rotate-45 -mt-1.5"></div>
+                                </div>
+                            </div>
                             <p class="text-xs text-gray-400 mt-2">{{ $announcement->created_at->diffForHumans() }} &bull; oleh {{ $announcement->user?->name ?? 'System' }}</p>
                         </div>
                     </div>
