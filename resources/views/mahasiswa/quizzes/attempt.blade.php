@@ -6,7 +6,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto">
     {{-- Header --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-4 flex items-center justify-between sticky top-16 z-20">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-4 flex items-center justify-between sticky top-0 z-10">
         <div class="flex items-center space-x-3">
             <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">{{ substr($quiz->title, 0, 1) }}</div>
             <div>
@@ -44,7 +44,7 @@
     <div class="flex gap-4">
         {{-- Question Navigator --}}
         <div class="hidden lg:block w-48 flex-shrink-0">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 sticky top-40">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 sticky top-16">
                 <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Navigasi</p>
                 <div class="grid grid-cols-4 gap-1.5">
                     @foreach($quiz->questions as $index => $q)
