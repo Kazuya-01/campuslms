@@ -4,7 +4,33 @@
 @section('page-title', '')
 
 @section('content')
-<div class="max-w-4xl mx-auto">
+<div class="max-w-4xl mx-auto" x-data="quizProtection()">
+    {{-- Warning Modal --}}
+    <div x-show="showWarning" x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Anda Meninggalkan Halaman Quiz!</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                Quiz akan otomatis dikumpulkan jika Anda tidak kembali dalam waktu <span class="font-bold text-red-500" x-text="warningTimer"></span> detik.
+            </p>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-6 overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-red-500 to-orange-500 rounded-full transition-all duration-1000" :style="'width: ' + ((warningTimer / 10) * 100) + '%'"></div>
+            </div>
+            <button @@click="dismissWarning()" class="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-medium rounded-xl transition-all shadow-lg">
+                Kembali ke Quiz
+            </button>
+        </div>
+    </div>
+
+    {{-- Anti-cheat Toast Container --}}
+    <div id="cheat-toast" class="fixed top-4 right-4 z-50 flex flex-col space-y-2"></div>
+
     {{-- Header --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-4 flex items-center justify-between">
         <div class="flex items-center space-x-3">
@@ -22,7 +48,7 @@
                         setInterval(() => {
                             this.timeLeft--;
                             if (this.timeLeft <= 0) {
-                                document.getElementById('quiz-form').requestSubmit();
+                                document.getElementById('quiz-form').submit();
                             }
                         }, 1000);
                     },
@@ -31,7 +57,7 @@
                         let s = t % 60;
                         return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
                     }
-                }" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg" :class="timeLeft < 60 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-purple-50 dark:bg-purple-900/20'">
+                }" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg" :class="timeLeft < 60 ? 'bg-red-50 dark:bg-red-900/20 animate-pulse' : 'bg-purple-50 dark:bg-purple-900/20'">
                     <svg class="w-4 h-4" :class="timeLeft < 60 ? 'text-red-500' : 'text-purple-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span x-text="format(timeLeft)" class="font-bold tabular-nums" :class="timeLeft < 60 ? 'text-red-600' : 'text-purple-600'"></span>
                 </div>
@@ -83,7 +109,7 @@
                                 <div class="space-y-2">
                                     @foreach($question->options as $option)
                                         <label x-data="{ checked: false }" :class="checked ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 ring-1 ring-purple-500' : 'border-gray-200 dark:border-gray-700'" class="flex items-center p-3.5 rounded-xl border hover:border-purple-300 dark:hover:border-purple-600 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 cursor-pointer transition-all">
-                                            <input type="radio" name="question_{{ $question->id }}" value="{{ is_array($option) ? ($option['value'] ?? '') : $option }}" @@change="checked = $el.checked" class="hidden" required>
+                                            <input type="radio" name="question_{{ $question->id }}" value="{{ is_array($option) ? ($option['value'] ?? '') : $option }}" @@change="checked = $el.checked" class="hidden">
                                             <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 flex-shrink-0 transition-all" :class="checked ? 'border-purple-500 bg-purple-500' : 'border-gray-300 dark:border-gray-600'">
                                                 <div x-show="checked" class="w-2 h-2 rounded-full bg-white"></div>
                                             </div>
@@ -92,7 +118,7 @@
                                     @endforeach
                                 </div>
                             @else
-                                <textarea name="question_{{ $question->id }}" rows="4" required 
+                                <textarea name="question_{{ $question->id }}" rows="4" 
                                     class="w-full rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:border-purple-500 focus:ring-purple-500 resize-y"
                                     placeholder="Tulis jawaban Anda di sini..."></textarea>
                             @endif
@@ -112,3 +138,136 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('quizProtection', () => ({
+        showWarning: false,
+        warningTimer: 10,
+        warningInterval: null,
+        formSubmitted: false,
+
+        init() {
+            this.preventCheating();
+            this.trackVisibility();
+            this.trackLeave();
+            this.preventBackNavigation();
+        },
+
+        preventCheating() {
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                this.showToast('Mengklik kanan tidak diizinkan selama quiz');
+            });
+
+            document.addEventListener('copy', (e) => e.preventDefault());
+            document.addEventListener('paste', (e) => e.preventDefault());
+            document.addEventListener('cut', (e) => e.preventDefault());
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'F12' ||
+                    (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
+                    (e.ctrlKey && ['U', 'S', 'P'].includes(e.key.toUpperCase()))) {
+                    e.preventDefault();
+                    this.showToast('Akses developer tools tidak diizinkan');
+                }
+            });
+        },
+
+        trackVisibility() {
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && !this.formSubmitted) {
+                    this.showWarning = true;
+                    this.warningTimer = 10;
+                    this.warningInterval = setInterval(() => {
+                        this.warningTimer--;
+                        if (this.warningTimer <= 0) {
+                            clearInterval(this.warningInterval);
+                            this.autoSubmit();
+                        }
+                    }, 1000);
+                } else {
+                    if (!this.formSubmitted) {
+                        this.dismissWarning();
+                    }
+                }
+            });
+        },
+
+        trackLeave() {
+            window.addEventListener('beforeunload', (e) => {
+                if (this.formSubmitted) return;
+                this.sendBeacon();
+                e.preventDefault();
+                e.returnValue = '';
+            });
+        },
+
+        preventBackNavigation() {
+            history.pushState(null, '', location.href);
+            window.addEventListener('popstate', (e) => {
+                history.pushState(null, '', location.href);
+                this.showToast('Tombol kembali dinonaktifkan selama quiz');
+            });
+        },
+
+        dismissWarning() {
+            this.showWarning = false;
+            this.warningTimer = 10;
+            if (this.warningInterval) {
+                clearInterval(this.warningInterval);
+                this.warningInterval = null;
+            }
+        },
+
+        autoSubmit() {
+            if (this.formSubmitted) return;
+            this.formSubmitted = true;
+            this.showWarning = false;
+            if (this.warningInterval) {
+                clearInterval(this.warningInterval);
+            }
+            document.getElementById('quiz-form').submit();
+        },
+
+        sendBeacon() {
+            try {
+                const form = document.getElementById('quiz-form');
+                const data = new FormData(form);
+                data.append('auto_submit', '1');
+                navigator.sendBeacon(form.action, data);
+            } catch (e) {
+                // silently fail
+            }
+        },
+
+        showToast(message) {
+            const container = document.getElementById('cheat-toast');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'px-4 py-2.5 bg-red-500 text-white rounded-xl shadow-lg text-sm font-medium animate-slide-in flex items-center space-x-2';
+            toast.innerHTML = '<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg><span>' + message + '</span>';
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.3s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    }));
+});
+</script>
+@endpush
+
+@push('styles')
+<style>
+    .animate-slide-in {
+        animation: slideIn 0.3s ease-out;
+    }
+    @@keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+</style>
+@endpush

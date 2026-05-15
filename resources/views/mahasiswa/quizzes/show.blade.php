@@ -32,13 +32,33 @@
                 Kamu sudah mengerjakan quiz ini. <a href="{{ route('mahasiswa.quizzes.result', $quiz) }}" class="underline font-medium">Lihat hasil</a>
             </div>
         @else
+            <div class="mb-6 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700 rounded-xl text-left">
+                <p class="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">Peraturan Quiz:</p>
+                <ul class="text-xs text-amber-700 dark:text-amber-400 space-y-1.5">
+                    <li class="flex items-start space-x-2">
+                        <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        <span>Dilarang membuka tab baru atau meninggalkan halaman quiz</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                        <span>Dilarang menggunakan copy-paste dan developer tools</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>{{ $quiz->time_limit ? 'Batas waktu ' . $quiz->time_limit . ' menit. Quiz otomatis dikumpulkan saat waktu habis.' : 'Tidak ada batas waktu' }}</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Quiz hanya bisa dikerjakan satu kali dan tidak bisa diulang</span>
+                    </li>
+                </ul>
+            </div>
             <form action="{{ route('mahasiswa.quizzes.start', $quiz) }}" method="POST">
                 @csrf
                 <button type="submit" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-medium rounded-xl shadow-lg transition-all">
                     Mulai Quiz
                 </button>
             </form>
-            <p class="text-xs text-gray-400 mt-3">Pastikan koneksi stabil. Quiz tidak bisa diulang.</p>
         @endif
     </div>
 </div>

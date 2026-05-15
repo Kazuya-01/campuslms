@@ -98,10 +98,10 @@ class QuizController extends Controller
             $isCorrect = null;
             $pointsEarned = 0;
 
-            if ($question->type === 'multiple_choice') {
+            if ($answer !== null && $question->type === 'multiple_choice') {
                 $isCorrect = $answer === $question->correct_answer;
                 $pointsEarned = $isCorrect ? $question->points : 0;
-            } elseif ($question->type === 'essay') {
+            } elseif ($answer !== null && $question->type === 'essay') {
                 $pointsEarned = 0;
                 $isCorrect = null;
             }
