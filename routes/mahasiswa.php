@@ -4,6 +4,7 @@ use App\Http\Controllers\Mahasiswa\AssignmentController;
 use App\Http\Controllers\Mahasiswa\CertificateController;
 use App\Http\Controllers\Mahasiswa\ClassController as MahasiswaClassController;
 use App\Http\Controllers\Mahasiswa\DashboardController as MahasiswaDashboardController;
+use App\Http\Controllers\Mahasiswa\ForumController as MahasiswaForumController;
 use App\Http\Controllers\Mahasiswa\GradeController;
 use App\Http\Controllers\Mahasiswa\QuizController as MahasiswaQuizController;
 use Illuminate\Support\Facades\Route;
@@ -30,4 +31,10 @@ Route::middleware(['auth', 'verified', 'role:mahasiswa'])->prefix('mahasiswa')->
     Route::match(['get', 'post'], 'quizzes/{quiz}/start', [MahasiswaQuizController::class, 'start'])->name('quizzes.start');
     Route::post('quizzes/{quiz}/submit', [MahasiswaQuizController::class, 'submit'])->name('quizzes.submit');
     Route::get('quizzes/{quiz}/result', [MahasiswaQuizController::class, 'result'])->name('quizzes.result');
+
+    Route::get('forum', [MahasiswaForumController::class, 'index'])->name('forum.index');
+    Route::get('forum/class/{class}', [MahasiswaForumController::class, 'class'])->name('forum.class');
+    Route::get('forum/thread/{thread}', [MahasiswaForumController::class, 'show'])->name('forum.show');
+    Route::post('forum/thread/{thread}/reply', [MahasiswaForumController::class, 'reply'])->name('forum.reply');
+    Route::post('forum/reply/{reply}/like', [MahasiswaForumController::class, 'like'])->name('forum.like');
 });

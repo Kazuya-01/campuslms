@@ -4,6 +4,7 @@ use App\Http\Controllers\Dosen\AssignmentController;
 use App\Http\Controllers\Dosen\CertificateController as DosenCertificateController;
 use App\Http\Controllers\Dosen\ClassController as DosenClassController;
 use App\Http\Controllers\Dosen\DashboardController as DosenDashboardController;
+use App\Http\Controllers\Dosen\ForumController as DosenForumController;
 use App\Http\Controllers\Dosen\MaterialController;
 use App\Http\Controllers\Dosen\QuizController;
 use Illuminate\Support\Facades\Route;
@@ -39,4 +40,13 @@ Route::middleware(['auth', 'verified', 'role:dosen'])->prefix('dosen')->name('do
     Route::get('certificates/create', [DosenCertificateController::class, 'create'])->name('certificates.create');
     Route::post('certificates', [DosenCertificateController::class, 'store'])->name('certificates.store');
     Route::get('certificates/{certificate}/download', [DosenCertificateController::class, 'download'])->name('certificates.download');
+
+    Route::get('forum', [DosenForumController::class, 'index'])->name('forum.index');
+    Route::get('forum/class/{class}', [DosenForumController::class, 'class'])->name('forum.class');
+    Route::get('forum/class/{class}/create', [DosenForumController::class, 'create'])->name('forum.create');
+    Route::post('forum/class/{class}', [DosenForumController::class, 'store'])->name('forum.store');
+    Route::get('forum/thread/{thread}', [DosenForumController::class, 'show'])->name('forum.show');
+    Route::post('forum/thread/{thread}/reply', [DosenForumController::class, 'reply'])->name('forum.reply');
+    Route::post('forum/reply/{reply}/like', [DosenForumController::class, 'like'])->name('forum.like');
+    Route::delete('forum/thread/{thread}', [DosenForumController::class, 'destroy'])->name('forum.destroy');
 });

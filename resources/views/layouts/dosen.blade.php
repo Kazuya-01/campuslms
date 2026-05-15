@@ -39,6 +39,7 @@
                 <x-admin.sidebar-item href="{{ route('dosen.classes.index') }}" :active="request()->routeIs('dosen.classes.*')" icon="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">My Classes</x-admin.sidebar-item>
                 <x-admin.sidebar-item href="{{ route('dosen.assignments.index') }}" :active="request()->routeIs('dosen.assignments.*')" icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">Assignments</x-admin.sidebar-item>
                 <x-admin.sidebar-item href="{{ route('dosen.quizzes.index') }}" :active="request()->routeIs('dosen.quizzes.*')" icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">Quiz</x-admin.sidebar-item>
+                <x-admin.sidebar-item href="{{ route('dosen.forum.index') }}" :active="request()->routeIs('dosen.forum.*')" icon="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">Forum</x-admin.sidebar-item>
                 <x-admin.sidebar-item href="{{ route('dosen.certificates.index') }}" :active="request()->routeIs('dosen.certificates.*')" icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">Sertifikat</x-admin.sidebar-item>
             </nav>
 
